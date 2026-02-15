@@ -26,6 +26,7 @@ const envSchema = z.object({
 
   // OpenPhone
   OPENPHONE_API_KEY: z.string().optional(),
+  OPENPHONE_PHONE_NUMBER: z.string().optional(),
   OPENPHONE_BASE_URL: z
     .string()
     .url()

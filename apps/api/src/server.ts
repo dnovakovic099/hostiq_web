@@ -12,6 +12,10 @@ import messagesRoutes from "./routes/messages";
 import issuesRoutes from "./routes/issues";
 import adminRoutes from "./routes/admin";
 import sseRoutes from "./routes/sse";
+import aiRoutes from "./routes/ai";
+import cleaningRoutes from "./routes/cleaning";
+import notificationsRoutes from "./routes/notifications";
+import reportsRoutes from "./routes/reports";
 import { registerEventHandlers } from "./events";
 import { registerSSEBridge } from "./events/sse-bridge";
 import { startScheduler } from "./workers/scheduler";
@@ -53,6 +57,10 @@ api.route("/messages", messagesRoutes);
 api.route("/issues", issuesRoutes);
 api.route("/admin", adminRoutes);
 api.route("/sse", sseRoutes);
+api.route("/ai", aiRoutes);
+api.route("/cleaning", cleaningRoutes);
+api.route("/notifications", notificationsRoutes);
+api.route("/reports", reportsRoutes);
 
 app.route("/api", api);
 

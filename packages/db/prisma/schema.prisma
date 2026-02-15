@@ -28,9 +28,10 @@ model User {
   mfaEnabled    Boolean   @default(false) @map("mfa_enabled")
   mfaSecret     String?   @map("mfa_secret")
   avatarUrl     String?   @map("avatar_url")
-  timezone      String    @default("America/New_York")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  timezone           String    @default("America/New_York")
+  notificationPrefsJson Json?   @map("notification_prefs_json")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   sessions              Session[]
   invitesSent           Invite[]           @relation("InviteSender")
@@ -360,11 +361,12 @@ model Cleaner {
 }
 
 model CleanerAssignment {
-  id              String   @id @default(cuid())
-  propertyId      String   @map("property_id")
-  primaryCleanerId String  @map("primary_cleaner_id")
-  backupCleanerId  String? @map("backup_cleaner_id")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id               String   @id @default(cuid())
+  propertyId       String   @map("property_id")
+  primaryCleanerId String   @map("primary_cleaner_id")
+  backupCleanerId  String?  @map("backup_cleaner_id")
+  instructions     String?
+  createdAt        DateTime @default(now()) @map("created_at")
 
   property       Property @relation(fields: [propertyId], references: [id])
   primaryCleaner Cleaner  @relation("PrimaryCleaner", fields: [primaryCleanerId], references: [id])
