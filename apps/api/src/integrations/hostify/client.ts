@@ -178,12 +178,31 @@ export async function hostifyPaginate<T extends { id: number | string }>(
   let consecutiveEmptyOrDuplicate = 0;
 
   while (page <= maxPages) {
-    const response = await hostifyRequest<T[] | { data: T[] }>(endpoint, {
+    const response = await hostifyRequest<Record<string, unknown>>(endpoint, {
       params: { ...params, page },
     });
 
-    // Handle both array and { data: [...] } response formats
-    const records = Array.isArray(response) ? response : response.data || [];
+    // Hostify wraps paginated data in varying keys:
+    // /listings -> { listings: [...] }
+    // /reservations -> { reservations: [...] } or { data: [...] }
+    // /inbox -> { data: [...] } or { threads: [...] }
+    // /reviews -> { reviews: [...] } or { data: [...] }
+    // Also might return a plain array
+    let records: T[];
+    if (Array.isArray(response)) {
+      records = response as unknown as T[];
+    } else {
+      // Try known keys in priority order
+      const entityKey = endpoint.replace(/^\//, "").split("?")[0]; // "listings", "reservations", etc.
+      const data =
+        (response[entityKey] as T[]) ||
+        (response.data as T[]) ||
+        (response.results as T[]) ||
+        (response.items as T[]) ||
+        (response.threads as T[]) ||
+        [];
+      records = Array.isArray(data) ? data : [];
+    }
 
     if (records.length === 0) {
       consecutiveEmptyOrDuplicate++;

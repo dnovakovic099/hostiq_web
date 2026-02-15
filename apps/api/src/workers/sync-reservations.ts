@@ -89,14 +89,15 @@ export async function syncReservationsForProperty(
     for (const raw of rawReservations) {
       const hostifyReservationId = String(raw.id);
 
-      const checkIn = parseDate(raw.check_in ?? raw.check_in_date);
-      const checkOut = parseDate(raw.check_out ?? raw.check_out_date);
+      // Hostify API returns camelCase: checkIn, checkOut, etc.
+      const checkIn = parseDate(raw.checkIn ?? raw.check_in ?? raw.check_in_date);
+      const checkOut = parseDate(raw.checkOut ?? raw.check_out ?? raw.check_out_date);
       const nights = parseNumber(raw.nights) ?? 0;
-      const total = parseNumber(raw.total ?? raw.amount);
-      const nightlyRate = parseNumber(raw.nightly_rate ?? raw.nightly_rate_amount);
+      const total = parseNumber(raw.payout_price ?? raw.revenue ?? raw.subtotal ?? raw.total ?? raw.amount);
+      const nightlyRate = parseNumber(raw.price_per_night ?? raw.base_price ?? raw.nightly_rate);
       const cleaningFee = parseNumber(raw.cleaning_fee ?? raw.cleaning_fee_amount);
-      const guestCount = parseNumber(raw.guest_count ?? raw.guests);
-      const bookedAt = parseDate(raw.booked_at ?? raw.created_at);
+      const guestCount = parseNumber(raw.guests ?? raw.guest_count);
+      const bookedAt = parseDate(raw.confirmed_at ?? raw.created_at ?? raw.booked_at);
 
       if (!checkIn || !checkOut) {
         console.warn(
@@ -108,7 +109,9 @@ export async function syncReservationsForProperty(
       let guestId: string | null = null;
       const guestEmail = (raw.guest_email ?? raw.email) as string | undefined;
       const guestName = (raw.guest_name ?? raw.guest_name_full) as string | undefined;
-      const guestPhone = (raw.guest_phone ?? raw.phone) as string | undefined;
+      // Hostify returns phone as integer sometimes (e.g. 447507849802)
+      const rawPhone = raw.guest_phone ?? raw.phone;
+      const guestPhone = rawPhone != null ? String(rawPhone) : undefined;
       const hostifyGuestId = (raw.guest_id ?? raw.guest_uid) as string | number | undefined;
 
       if (hostifyGuestId || guestEmail || guestName) {
@@ -147,10 +150,12 @@ export async function syncReservationsForProperty(
         }
       }
 
+      const channel = (raw.source ?? raw.channel) as string | undefined;
+
       await prisma.reservation.upsert({
         where: { hostifyReservationId },
         update: {
-          channel: (raw.channel as string) ?? undefined,
+          channel: channel ?? undefined,
           status: normalizeStatus(raw.status as string),
           checkIn,
           checkOut,
@@ -166,7 +171,7 @@ export async function syncReservationsForProperty(
         create: {
           propertyId,
           hostifyReservationId,
-          channel: (raw.channel as string) ?? null,
+          channel: channel ?? null,
           status: normalizeStatus(raw.status as string),
           checkIn,
           checkOut,

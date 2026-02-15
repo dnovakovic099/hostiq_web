@@ -1,52 +1,52 @@
 import { PrismaClient } from "@prisma/client";
-import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
+}
 
 async function main() {
   console.log("Seeding HostIQ database...");
 
-  // Create admin user
-  const adminPasswordHash = crypto
-    .createHash("sha256")
-    .update("admin123!")
-    .digest("hex");
+  const adminHash = await hashPassword("admin123!");
+  const ownerHash = await hashPassword("owner123!");
+  const cleanerHash = await hashPassword("cleaner123!");
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@hostiq.app" },
-    update: {},
+    update: { passwordHash: adminHash },
     create: {
       email: "admin@hostiq.app",
       name: "HostIQ Admin",
-      passwordHash: `$2a$12$placeholder_hash_for_seed_only`,
+      passwordHash: adminHash,
       role: "ADMIN",
       phone: "+15555550100",
     },
   });
-  console.log(`Created admin user: ${admin.email}`);
+  console.log(`Created admin user: ${admin.email} (password: admin123!)`);
 
-  // Create demo owner
   const owner = await prisma.user.upsert({
     where: { email: "owner@demo.com" },
-    update: {},
+    update: { passwordHash: ownerHash },
     create: {
       email: "owner@demo.com",
       name: "Demo Owner",
-      passwordHash: `$2a$12$placeholder_hash_for_seed_only`,
+      passwordHash: ownerHash,
       role: "OWNER",
       phone: "+15555550101",
     },
   });
-  console.log(`Created owner user: ${owner.email}`);
+  console.log(`Created owner user: ${owner.email} (password: owner123!)`);
 
-  // Create demo cleaner user
   const cleanerUser = await prisma.user.upsert({
     where: { email: "cleaner@demo.com" },
-    update: {},
+    update: { passwordHash: cleanerHash },
     create: {
       email: "cleaner@demo.com",
       name: "Demo Cleaner",
-      passwordHash: `$2a$12$placeholder_hash_for_seed_only`,
+      passwordHash: cleanerHash,
       role: "CLEANER",
       phone: "+15555550102",
     },
