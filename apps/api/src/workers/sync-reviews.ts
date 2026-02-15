@@ -1,4 +1,4 @@
-import { prisma, Prisma } from "@hostiq/db";
+import { prisma } from "@hostiq/db";
 import { hostify } from "../integrations/hostify/client";
 
 const EVENT_TYPE = "review.received";
@@ -42,7 +42,7 @@ export async function syncReviews(): Promise<void> {
       await prisma.automationRun.create({
         data: {
           eventType: EVENT_TYPE,
-          eventPayload: payload as Prisma.InputJsonValue,
+          eventPayload: payload as any,
           outcome: "received",
         },
       });

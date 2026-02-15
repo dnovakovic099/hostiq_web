@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsup",
     "start": "node dist/server.js",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
@@ -12,30 +12,31 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@hono/node-server": "^1",
     "@hostiq/db": "workspace:*",
     "@hostiq/shared": "workspace:*",
-    "hono": "^4",
-    "@hono/node-server": "^1",
+    "bcryptjs": "^2",
     "bullmq": "^5",
-    "ioredis": "^5",
-    "zod": "^3",
     "date-fns": "^4",
-    "resend": "^4",
-    "openai": "^4",
+    "dotenv": "^16",
+    "hono": "^4",
+    "ioredis": "^5",
+    "jsonwebtoken": "^9",
     "nanoid": "^5",
+    "openai": "^4",
     "pino": "^9",
     "pino-pretty": "^11",
-    "dotenv": "^16",
-    "bcryptjs": "^2",
-    "jsonwebtoken": "^9"
+    "resend": "^4",
+    "zod": "^3"
   },
   "devDependencies": {
-    "@types/node": "^22",
     "@types/bcryptjs": "^2",
     "@types/jsonwebtoken": "^9",
+    "@types/node": "^22",
+    "eslint": "^9",
+    "tsup": "^8.5.1",
     "tsx": "^4",
     "typescript": "^5",
-    "eslint": "^9",
     "vitest": "^2"
   }
 }

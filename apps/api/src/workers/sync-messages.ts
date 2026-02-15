@@ -1,4 +1,6 @@
-import { prisma, type SenderType } from "@hostiq/db";
+import { prisma } from "@hostiq/db";
+
+type SenderType = "GUEST" | "HOST" | "SYSTEM";
 import { hostify } from "../integrations/hostify/client";
 
 const INTEGRATION = "hostify";
