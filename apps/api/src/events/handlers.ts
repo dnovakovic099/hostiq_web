@@ -1,5 +1,5 @@
 import { prisma } from "@hostiq/db";
-import { on, EVENT_TYPES } from "./event-bus";
+import { on, emit, EVENT_TYPES } from "./event-bus";
 import type { DomainEvent } from "@hostiq/shared";
 import { ESCALATION } from "@hostiq/shared";
 
@@ -40,7 +40,7 @@ export function registerEventHandlers(): void {
       });
 
       if (thread) {
-        await prisma.escalation.create({
+        const escalation = await prisma.escalation.create({
           data: {
             propertyId: thread.propertyId,
             reservationId: thread.reservationId,
@@ -57,6 +57,13 @@ export function registerEventHandlers(): void {
               Date.now() + ESCALATION.DEFAULT_SLA_HOURS * 60 * 60 * 1000
             ),
           },
+        });
+        await emit(EVENT_TYPES.ESCALATION_CREATED, {
+          escalation_id: escalation.id,
+          property_id: thread.propertyId,
+          type: escalation.type,
+          severity: escalation.severity,
+          summary: escalation.summary,
         });
 
         // TODO: Send SMS/email notification to owner
@@ -116,7 +123,7 @@ export function registerEventHandlers(): void {
 
     // Auto-escalate critical issues
     if (payload.severity === "critical") {
-      await prisma.escalation.create({
+      const escalation = await prisma.escalation.create({
         data: {
           propertyId: payload.property_id || null,
           type: "hostbuddy_critical",
@@ -125,6 +132,13 @@ export function registerEventHandlers(): void {
           suggestedAction: "Review and respond immediately",
           slaDeadline: new Date(Date.now() + 60 * 60 * 1000), // 1 hour SLA
         },
+      });
+      await emit(EVENT_TYPES.ESCALATION_CREATED, {
+        escalation_id: escalation.id,
+        property_id: payload.property_id,
+        type: escalation.type,
+        severity: escalation.severity,
+        summary: escalation.summary,
       });
 
       console.log(
@@ -181,7 +195,7 @@ export function registerEventHandlers(): void {
     });
 
     // Create escalation
-    await prisma.escalation.create({
+    const escalation = await prisma.escalation.create({
       data: {
         propertyId: payload.property_id || null,
         type: "cleaning_no_ack",
@@ -190,6 +204,13 @@ export function registerEventHandlers(): void {
         suggestedAction: "Contact backup cleaner or assign alternative",
         slaDeadline: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
       },
+    });
+    await emit(EVENT_TYPES.ESCALATION_CREATED, {
+      escalation_id: escalation.id,
+      property_id: payload.property_id,
+      type: escalation.type,
+      severity: escalation.severity,
+      summary: escalation.summary,
     });
 
     console.log(
@@ -213,7 +234,7 @@ export function registerEventHandlers(): void {
         `[Handler:Review] Low rating (${payload.rating}) detected, creating escalation`
       );
 
-      await prisma.escalation.create({
+      const escalation = await prisma.escalation.create({
         data: {
           propertyId: payload.property_id || null,
           reservationId: payload.reservation_id || null,
@@ -223,6 +244,13 @@ export function registerEventHandlers(): void {
           suggestedAction:
             "Review the feedback and consider a response. Check for recurring issues.",
         },
+      });
+      await emit(EVENT_TYPES.ESCALATION_CREATED, {
+        escalation_id: escalation.id,
+        property_id: payload.property_id,
+        type: escalation.type,
+        severity: escalation.severity,
+        summary: escalation.summary,
       });
     }
   });

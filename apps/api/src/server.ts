@@ -4,11 +4,17 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { env } from "./env";
 import authRoutes from "./routes/auth";
+import dashboardRoutes from "./routes/dashboard";
 import webhookRoutes from "./routes/webhooks/index";
 import propertiesRoutes from "./routes/properties";
 import reservationsRoutes from "./routes/reservations";
 import messagesRoutes from "./routes/messages";
 import issuesRoutes from "./routes/issues";
+import adminRoutes from "./routes/admin";
+import sseRoutes from "./routes/sse";
+import { registerEventHandlers } from "./events";
+import { registerSSEBridge } from "./events/sse-bridge";
+import { startScheduler } from "./workers/scheduler";
 
 const app = new Hono();
 
@@ -39,13 +45,20 @@ api.get("/", (c) => {
 });
 
 api.route("/auth", authRoutes);
+api.route("/dashboard", dashboardRoutes);
 api.route("/webhooks", webhookRoutes);
 api.route("/properties", propertiesRoutes);
 api.route("/reservations", reservationsRoutes);
 api.route("/messages", messagesRoutes);
 api.route("/issues", issuesRoutes);
+api.route("/admin", adminRoutes);
+api.route("/sse", sseRoutes);
 
 app.route("/api", api);
+
+// Register event handlers and SSE bridge
+registerEventHandlers();
+registerSSEBridge();
 
 // Start server
 const port = env.PORT;
@@ -57,5 +70,11 @@ serve({
 });
 
 console.log(`HostIQ API running at http://localhost:${port}`);
+
+// Start background sync scheduler (non-blocking)
+if (env.NODE_ENV !== "test") {
+  startScheduler();
+  console.log("Background sync scheduler started");
+}
 
 export default app;

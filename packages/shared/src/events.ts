@@ -38,6 +38,15 @@ export const EVENT_TYPES = {
   // Listings
   LISTING_CREATED: "listing.created",
   LISTING_UPDATED: "listing.updated",
+
+  // Escalations (emitted when escalation is created)
+  ESCALATION_CREATED: "escalation.created",
+
+  // Sync
+  SYNC_PROGRESS: "sync.progress",
+
+  // Integration health
+  HEALTH_CHANGED: "health.changed",
 } as const;
 
 export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];

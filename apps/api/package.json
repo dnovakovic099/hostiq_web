@@ -7,7 +7,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint src/",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hostiq/db": "workspace:*",
@@ -33,6 +35,7 @@
     "@types/jsonwebtoken": "^9",
     "tsx": "^4",
     "typescript": "^5",
-    "eslint": "^9"
+    "eslint": "^9",
+    "vitest": "^2"
   }
 }

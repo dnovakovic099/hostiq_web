@@ -390,6 +390,92 @@ auth.post("/accept-invite", async (c) => {
 });
 
 // ============================================
+// PUT /auth/me - Update profile
+// ============================================
+const updateMeSchema = z.object({
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional().nullable(),
+});
+
+auth.put("/me", requireAuth(), async (c) => {
+  const authUser = c.get("user");
+  const body = await c.req.json();
+  const parsed = updateMeSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json(
+      { success: false, error: "Validation failed", details: parsed.error.flatten() },
+      400
+    );
+  }
+
+  const updateData: Record<string, unknown> = {};
+  if (parsed.data.name !== undefined) updateData.name = parsed.data.name;
+  if (parsed.data.email !== undefined) updateData.email = parsed.data.email;
+  if (parsed.data.phone !== undefined) updateData.phone = parsed.data.phone;
+
+  const user = await prisma.user.update({
+    where: { id: authUser.userId },
+    data: updateData,
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      role: true,
+      timezone: true,
+      avatarUrl: true,
+      createdAt: true,
+    },
+  });
+
+  return c.json({ success: true, data: user });
+});
+
+// ============================================
+// POST /auth/change-password
+// ============================================
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+auth.post("/change-password", requireAuth(), async (c) => {
+  const authUser = c.get("user");
+  const body = await c.req.json();
+  const parsed = changePasswordSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json(
+      { success: false, error: "Validation failed", details: parsed.error.flatten() },
+      400
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: authUser.userId },
+  });
+
+  if (!user) {
+    return c.json({ success: false, error: "User not found" }, 404);
+  }
+
+  const valid = await verifyPassword(parsed.data.currentPassword, user.passwordHash);
+  if (!valid) {
+    return c.json({ success: false, error: "Current password is incorrect" }, 400);
+  }
+
+  const passwordHash = await hashPassword(parsed.data.newPassword);
+  await prisma.user.update({
+    where: { id: authUser.userId },
+    data: { passwordHash },
+  });
+
+  await logAudit(authUser.userId, "change_password", "user", authUser.userId, undefined, c.req.header("x-forwarded-for"));
+
+  return c.json({ success: true, message: "Password changed successfully" });
+});
+
+// ============================================
 // GET /auth/sessions
 // ============================================
 auth.get("/sessions", requireAuth(), async (c) => {
