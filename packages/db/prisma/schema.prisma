@@ -1,0 +1,814 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Identity and Access
+// ============================================
+
+enum UserRole {
+  OWNER
+  CLEANER
+  INTERNAL_OPS
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phone         String?
+  passwordHash  String    @map("password_hash")
+  name          String?
+  role          UserRole  @default(OWNER)
+  mfaEnabled    Boolean   @default(false) @map("mfa_enabled")
+  mfaSecret     String?   @map("mfa_secret")
+  avatarUrl     String?   @map("avatar_url")
+  timezone      String    @default("America/New_York")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  sessions              Session[]
+  invitesSent           Invite[]           @relation("InviteSender")
+  ownedProperties       Property[]
+  reservationNotes      ReservationNote[]
+  notifications         Notification[]
+  ownerDigests          OwnerDigest[]
+  auditLogs             AuditLog[]
+  escalationAssignments Escalation[]       @relation("AssignedTo")
+  escalationResolutions EscalationResolution[]
+  pricingRulesCreated   PricingRule[]
+  cannedResponses       CannedResponse[]
+  pricingLocks          PricingLock[]
+  notificationPrefs     NotificationPreference[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  deviceInfo   String?  @map("device_info")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastActiveAt DateTime @default(now()) @map("last_active_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  email       String
+  role        UserRole
+  propertyIds String[]  @map("property_ids")
+  token       String    @unique
+  sentById    String    @map("sent_by_id")
+  expiresAt   DateTime  @map("expires_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  sentBy User @relation("InviteSender", fields: [sentById], references: [id])
+
+  @@index([token])
+  @@index([email])
+  @@map("invites")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  payload    Json?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Properties
+// ============================================
+
+model Property {
+  id               String   @id @default(cuid())
+  ownerId          String   @map("owner_id")
+  hostifyListingId String?  @unique @map("hostify_listing_id")
+  airbnbId         String?  @map("airbnb_id")
+  name             String
+  address          String?
+  city             String?
+  state            String?
+  zipCode          String?  @map("zip_code")
+  country          String?
+  bedrooms         Int?
+  bathrooms        Float?
+  maxGuests        Int?     @map("max_guests")
+  status           String   @default("active")
+  settingsJson     Json?    @map("settings_json")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  owner              User                @relation(fields: [ownerId], references: [id])
+  listingsSnapshots  ListingSnapshot[]
+  reservations       Reservation[]
+  messageThreads     MessageThread[]
+  cleaningTasks      CleaningTask[]
+  pricingRules       PricingRule[]
+  pricingDecisions   PricingDecision[]
+  escalations        Escalation[]
+  tickets            Ticket[]
+  recurringIssues    RecurringIssue[]
+  guestIssues        GuestIssue[]
+  cannedResponses    CannedResponse[]
+  pricingLocks       PricingLock[]
+  cleanerAssignments CleanerAssignment[]
+
+  @@index([ownerId])
+  @@map("properties")
+}
+
+model ListingSnapshot {
+  id           String   @id @default(cuid())
+  propertyId   String   @map("property_id")
+  snapshotDate DateTime @default(now()) @map("snapshot_date")
+  title        String?
+  description  String?
+  amenities    Json?
+  photosMeta   Json?    @map("photos_meta")
+  houseRules   String?  @map("house_rules")
+  hash         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("listings_snapshots")
+}
+
+// ============================================
+// Reservations and Guests
+// ============================================
+
+enum ReservationStatus {
+  INQUIRY
+  PRE_APPROVED
+  ACCEPTED
+  MOVED
+  EXTENDED
+  CANCELLED
+  COMPLETED
+}
+
+model Guest {
+  id              String   @id @default(cuid())
+  hostifyGuestId  String?  @unique @map("hostify_guest_id")
+  name            String?
+  email           String?
+  phone           String?
+  riskScore       Float?   @map("risk_score")
+  notes           String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  reservations   Reservation[]
+  messageThreads MessageThread[]
+  guestIssues    GuestIssue[]
+
+  @@map("guests")
+}
+
+model Reservation {
+  id                    String            @id @default(cuid())
+  propertyId            String            @map("property_id")
+  guestId               String?           @map("guest_id")
+  hostifyReservationId  String?           @unique @map("hostify_reservation_id")
+  channel               String?
+  status                ReservationStatus @default(ACCEPTED)
+  checkIn               DateTime          @map("check_in")
+  checkOut              DateTime          @map("check_out")
+  nights                Int
+  total                 Float?
+  nightlyRate           Float?            @map("nightly_rate")
+  cleaningFee           Float?            @map("cleaning_fee")
+  extras                Json?
+  guestCount            Int?              @map("guest_count")
+  bookedAt              DateTime?         @map("booked_at")
+  syncedAt              DateTime?         @map("synced_at")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  property     Property              @relation(fields: [propertyId], references: [id])
+  guest        Guest?                @relation(fields: [guestId], references: [id])
+  notes        ReservationNote[]
+  financials   ReservationFinancial?
+  cleaningTask CleaningTask?
+  threads      MessageThread[]
+  escalations  Escalation[]
+  tickets      Ticket[]
+  guestIssues  GuestIssue[]
+
+  @@index([propertyId])
+  @@index([guestId])
+  @@index([checkIn])
+  @@index([checkOut])
+  @@index([status])
+  @@map("reservations")
+}
+
+model ReservationNote {
+  id            String   @id @default(cuid())
+  reservationId String   @map("reservation_id")
+  userId        String   @map("user_id")
+  content       String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@index([reservationId])
+  @@map("reservation_notes")
+}
+
+model ReservationFinancial {
+  id            String   @id @default(cuid())
+  reservationId String   @unique @map("reservation_id")
+  gross         Float?
+  fees          Float?
+  net           Float?
+  payoutStatus  String?  @map("payout_status")
+  syncedAt      DateTime? @map("synced_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  reservation Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@map("reservation_financials")
+}
+
+// ============================================
+// Messages
+// ============================================
+
+enum ThreadStatus {
+  ACTIVE
+  AUTO_REPLIED
+  NEEDS_ATTENTION
+  ESCALATED
+  RESOLVED
+}
+
+model MessageThread {
+  id               String       @id @default(cuid())
+  propertyId       String       @map("property_id")
+  reservationId    String?      @map("reservation_id")
+  guestId          String?      @map("guest_id")
+  hostifyThreadId  String?      @unique @map("hostify_thread_id")
+  status           ThreadStatus @default(ACTIVE)
+  lastMessageAt    DateTime?    @map("last_message_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  property    Property      @relation(fields: [propertyId], references: [id])
+  reservation Reservation?  @relation(fields: [reservationId], references: [id])
+  guest       Guest?        @relation(fields: [guestId], references: [id])
+  messages    Message[]
+  escalations Escalation[]
+
+  @@index([propertyId])
+  @@index([reservationId])
+  @@index([lastMessageAt])
+  @@map("message_threads")
+}
+
+enum SenderType {
+  GUEST
+  HOST
+  AUTOMATION
+  SYSTEM
+}
+
+model Message {
+  id               String     @id @default(cuid())
+  threadId         String     @map("thread_id")
+  senderType       SenderType @map("sender_type")
+  content          String
+  hostifyMessageId String?    @unique @map("hostify_message_id")
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  thread   MessageThread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  aiStatus MessageAiStatus?
+
+  @@index([threadId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+model MessageAiStatus {
+  id               String   @id @default(cuid())
+  messageId        String   @unique @map("message_id")
+  provider         String
+  confidence       Float?
+  category         String?
+  actionItems      Json?    @map("action_items")
+  escalationReason String?  @map("escalation_reason")
+  responded        Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("message_ai_status")
+}
+
+// ============================================
+// Cleaning
+// ============================================
+
+model Cleaner {
+  id               String   @id @default(cuid())
+  userId           String?  @unique @map("user_id")
+  name             String
+  phone            String?
+  email            String?
+  rate             Float?
+  reliabilityScore Float?   @default(100) @map("reliability_score")
+  onTimePct        Float?   @default(100) @map("on_time_pct")
+  noShowCount      Int      @default(0) @map("no_show_count")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  primaryAssignments CleanerAssignment[] @relation("PrimaryCleaner")
+  backupAssignments  CleanerAssignment[] @relation("BackupCleaner")
+  cleaningTasks      CleaningTask[]      @relation("AssignedCleaner")
+  backupTasks        CleaningTask[]      @relation("BackupAssigned")
+
+  @@map("cleaners")
+}
+
+model CleanerAssignment {
+  id              String   @id @default(cuid())
+  propertyId      String   @map("property_id")
+  primaryCleanerId String  @map("primary_cleaner_id")
+  backupCleanerId  String? @map("backup_cleaner_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  property       Property @relation(fields: [propertyId], references: [id])
+  primaryCleaner Cleaner  @relation("PrimaryCleaner", fields: [primaryCleanerId], references: [id])
+  backupCleaner  Cleaner? @relation("BackupCleaner", fields: [backupCleanerId], references: [id])
+
+  @@unique([propertyId])
+  @@map("cleaner_assignments")
+}
+
+enum CleaningStatus {
+  PENDING
+  REMINDER_SENT
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  NO_RESPONSE
+  ESCALATED
+  CANCELLED
+}
+
+model CleaningTask {
+  id              String         @id @default(cuid())
+  propertyId      String         @map("property_id")
+  reservationId   String?        @unique @map("reservation_id")
+  cleanerId       String?        @map("cleaner_id")
+  backupCleanerId String?        @map("backup_cleaner_id")
+  scheduledDate   DateTime       @map("scheduled_date")
+  timeWindow      String?        @map("time_window")
+  status          CleaningStatus @default(PENDING)
+  acknowledgedAt  DateTime?      @map("acknowledged_at")
+  completedAt     DateTime?      @map("completed_at")
+  estimatedMinutes Int?          @map("estimated_minutes")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  property      Property           @relation(fields: [propertyId], references: [id])
+  reservation   Reservation?       @relation(fields: [reservationId], references: [id])
+  cleaner       Cleaner?           @relation("AssignedCleaner", fields: [cleanerId], references: [id])
+  backupCleaner Cleaner?           @relation("BackupAssigned", fields: [backupCleanerId], references: [id])
+  checklist     CleaningChecklist?
+  issues        CleaningIssue[]
+
+  @@index([propertyId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("cleaning_tasks")
+}
+
+model CleaningChecklist {
+  id          String   @id @default(cuid())
+  taskId      String   @unique @map("task_id")
+  itemsJson   Json     @map("items_json")
+  photosUrls  String[] @map("photos_urls")
+  notes       String?
+  submittedAt DateTime @default(now()) @map("submitted_at")
+
+  task CleaningTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("cleaning_checklists")
+}
+
+model CleaningIssue {
+  id          String    @id @default(cuid())
+  taskId      String    @map("task_id")
+  description String
+  severity    String    @default("medium")
+  photosUrls  String[]  @map("photos_urls")
+  resolvedAt  DateTime? @map("resolved_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  task CleaningTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@map("cleaning_issues")
+}
+
+// ============================================
+// Pricing
+// ============================================
+
+model PricingRule {
+  id         String   @id @default(cuid())
+  propertyId String   @map("property_id")
+  ruleType   String   @map("rule_type")
+  configJson Json     @map("config_json")
+  priority   Int      @default(0)
+  active     Boolean  @default(true)
+  createdBy  String   @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  property Property @relation(fields: [propertyId], references: [id])
+  creator  User     @relation(fields: [createdBy], references: [id])
+
+  @@index([propertyId])
+  @@map("pricing_rules")
+}
+
+model PricingDecision {
+  id           String   @id @default(cuid())
+  propertyId   String   @map("property_id")
+  date         DateTime
+  oldPrice     Float?   @map("old_price")
+  newPrice     Float    @map("new_price")
+  reason       String
+  confidence   Float?
+  ruleIds      String[] @map("rule_ids")
+  approvedBy   String?  @map("approved_by")
+  approvalMode String   @default("auto") @map("approval_mode")
+  applied      Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId, date])
+  @@map("pricing_decisions")
+}
+
+model PricingLock {
+  id         String   @id @default(cuid())
+  propertyId String   @map("property_id")
+  startDate  DateTime @map("start_date")
+  endDate    DateTime @map("end_date")
+  lockedBy   String   @map("locked_by")
+  reason     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  property Property @relation(fields: [propertyId], references: [id])
+  user     User     @relation(fields: [lockedBy], references: [id])
+
+  @@index([propertyId])
+  @@map("pricing_locks")
+}
+
+// ============================================
+// Automation and Escalation
+// ============================================
+
+model AutomationRun {
+  id             String   @id @default(cuid())
+  eventType      String   @map("event_type")
+  eventPayload   Json     @map("event_payload")
+  rulesEvaluated Json?    @map("rules_evaluated")
+  outcome        String?
+  confidence     Float?
+  humanOverride  Boolean  @default(false) @map("human_override")
+  durationMs     Int?     @map("duration_ms")
+  error          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("automation_runs")
+}
+
+enum EscalationStatus {
+  OPEN
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum EscalationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Escalation {
+  id              String             @id @default(cuid())
+  propertyId      String?            @map("property_id")
+  reservationId   String?            @map("reservation_id")
+  threadId        String?            @map("thread_id")
+  type            String
+  severity        EscalationSeverity @default(MEDIUM)
+  summary         String
+  suggestedAction String?            @map("suggested_action")
+  slaDeadline     DateTime?          @map("sla_deadline")
+  status          EscalationStatus   @default(OPEN)
+  assignedTo      String?            @map("assigned_to")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  property    Property?              @relation(fields: [propertyId], references: [id])
+  reservation Reservation?           @relation(fields: [reservationId], references: [id])
+  thread      MessageThread?         @relation(fields: [threadId], references: [id])
+  assignee    User?                  @relation("AssignedTo", fields: [assignedTo], references: [id])
+  resolutions EscalationResolution[]
+
+  @@index([status])
+  @@index([propertyId])
+  @@index([createdAt])
+  @@map("escalations")
+}
+
+model EscalationResolution {
+  id           String   @id @default(cuid())
+  escalationId String   @map("escalation_id")
+  resolvedBy   String   @map("resolved_by")
+  resolution   String
+  cost         Float?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  escalation Escalation @relation(fields: [escalationId], references: [id], onDelete: Cascade)
+  resolver   User       @relation(fields: [resolvedBy], references: [id])
+
+  @@map("escalation_resolutions")
+}
+
+// ============================================
+// Guest Issues (HostBuddy-fed)
+// ============================================
+
+enum IssueStatus {
+  OPEN
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+model GuestIssue {
+  id                  String      @id @default(cuid())
+  propertyId          String?     @map("property_id")
+  reservationId       String?     @map("reservation_id")
+  guestId             String?     @map("guest_id")
+  category            String
+  description         String
+  severity            String      @default("medium")
+  source              String      @default("hostbuddy")
+  hostbuddyPayloadHash String?   @map("hostbuddy_payload_hash")
+  photosUrls          String[]    @map("photos_urls")
+  status              IssueStatus @default(OPEN)
+  assignedTo          String?     @map("assigned_to")
+  resolvedAt          DateTime?   @map("resolved_at")
+  resolutionNotes     String?     @map("resolution_notes")
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  property    Property?    @relation(fields: [propertyId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  guest       Guest?       @relation(fields: [guestId], references: [id])
+
+  @@index([propertyId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("guest_issues")
+}
+
+model HostbuddyWebhookLog {
+  id            String   @id @default(cuid())
+  rawPayload    Json     @map("raw_payload")
+  parsed        Boolean  @default(false)
+  propertyId    String?  @map("property_id")
+  reservationId String?  @map("reservation_id")
+  category      String?
+  receivedAt    DateTime @default(now()) @map("received_at")
+
+  @@index([receivedAt])
+  @@map("hostbuddy_webhook_logs")
+}
+
+// ============================================
+// Issues and Maintenance
+// ============================================
+
+model Ticket {
+  id             String   @id @default(cuid())
+  propertyId     String?  @map("property_id")
+  reservationId  String?  @map("reservation_id")
+  type           String
+  severity       String   @default("medium")
+  description    String
+  vendorId       String?  @map("vendor_id")
+  costEstimate   Float?   @map("cost_estimate")
+  approvalStatus String?  @map("approval_status")
+  slaDeadline    DateTime? @map("sla_deadline")
+  status         String   @default("open")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  property    Property?    @relation(fields: [propertyId], references: [id])
+  reservation Reservation? @relation(fields: [reservationId], references: [id])
+  vendor      Vendor?      @relation(fields: [vendorId], references: [id])
+
+  @@index([propertyId])
+  @@index([status])
+  @@map("tickets")
+}
+
+model Vendor {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  specialty String?
+  rate      Float?
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tickets Ticket[]
+
+  @@map("vendors")
+}
+
+model RecurringIssue {
+  id              String   @id @default(cuid())
+  propertyId      String   @map("property_id")
+  issuePattern    String   @map("issue_pattern")
+  occurrenceCount Int      @default(1) @map("occurrence_count")
+  totalCost       Float?   @map("total_cost")
+  reviewImpact    String?  @map("review_impact")
+  suggestedFix    String?  @map("suggested_fix")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@map("recurring_issues")
+}
+
+// ============================================
+// Notifications and Reporting
+// ============================================
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  channel   String
+  type      String
+  title     String
+  body      String
+  metadata  Json?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id              String  @id @default(cuid())
+  userId          String  @map("user_id")
+  channel         String
+  eventType       String  @map("event_type")
+  enabled         Boolean @default(true)
+  quietHoursStart String? @map("quiet_hours_start")
+  quietHoursEnd   String? @map("quiet_hours_end")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel, eventType])
+  @@map("notification_preferences")
+}
+
+model OwnerDigest {
+  id            String    @id @default(cuid())
+  ownerId       String    @map("owner_id")
+  periodStart   DateTime  @map("period_start")
+  periodEnd     DateTime  @map("period_end")
+  contentJson   Json      @map("content_json")
+  pdfUrl        String?   @map("pdf_url")
+  shareToken    String?   @unique @map("share_token")
+  shareExpiresAt DateTime? @map("share_expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  owner User @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@map("owner_digests")
+}
+
+// ============================================
+// Canned Responses
+// ============================================
+
+model CannedResponse {
+  id         String   @id @default(cuid())
+  propertyId String?  @map("property_id")
+  ownerId    String   @map("owner_id")
+  name       String
+  template   String
+  category   String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  property Property? @relation(fields: [propertyId], references: [id])
+  owner    User      @relation(fields: [ownerId], references: [id])
+
+  @@index([propertyId])
+  @@map("canned_responses")
+}
+
+// ============================================
+// Integration Health
+// ============================================
+
+model SyncCheckpoint {
+  id          String    @id @default(cuid())
+  integration String
+  entityType  String    @map("entity_type")
+  lastPage    Int?      @map("last_page")
+  lastId      String?   @map("last_id")
+  totalSynced Int       @default(0) @map("total_synced")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@unique([integration, entityType])
+  @@map("sync_checkpoints")
+}
+
+model IntegrationHealth {
+  id                  String    @id @default(cuid())
+  integration         String    @unique
+  status              String    @default("unknown")
+  lastSuccessAt       DateTime? @map("last_success_at")
+  lastFailureAt       DateTime? @map("last_failure_at")
+  errorMessage        String?   @map("error_message")
+  consecutiveFailures Int       @default(0) @map("consecutive_failures")
+  metadata            Json?
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@map("integration_health")
+}
+
+model WebhookRegistration {
+  id                    String    @id @default(cuid())
+  hostifyWebhookId      String?   @map("hostify_webhook_id")
+  notificationType      String    @map("notification_type")
+  endpointUrl           String    @map("endpoint_url")
+  authSecretRef         String?   @map("auth_secret_ref")
+  snsTopicArn           String?   @map("sns_topic_arn")
+  subscriptionConfirmed Boolean   @default(false) @map("subscription_confirmed")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  lastReceivedAt        DateTime? @map("last_received_at")
+
+  @@unique([notificationType])
+  @@map("webhook_registrations")
+}

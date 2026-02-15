@@ -1,0 +1,39 @@
+{
+  "name": "@hostiq/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hostiq/db": "workspace:*",
+    "@hostiq/shared": "workspace:*",
+    "next": "^15",
+    "next-auth": "^4",
+    "react": "^19",
+    "react-dom": "^19",
+    "lucide-react": "^0.460",
+    "class-variance-authority": "^0.7",
+    "clsx": "^2",
+    "tailwind-merge": "^2",
+    "recharts": "^2",
+    "date-fns": "^4",
+    "zod": "^3",
+    "zustand": "^5"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5",
+    "eslint": "^9",
+    "eslint-config-next": "^15"
+  }
+}

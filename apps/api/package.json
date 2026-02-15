@@ -1,0 +1,38 @@
+{
+  "name": "@hostiq/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hostiq/db": "workspace:*",
+    "@hostiq/shared": "workspace:*",
+    "hono": "^4",
+    "@hono/node-server": "^1",
+    "bullmq": "^5",
+    "ioredis": "^5",
+    "zod": "^3",
+    "date-fns": "^4",
+    "resend": "^4",
+    "openai": "^4",
+    "nanoid": "^5",
+    "pino": "^9",
+    "pino-pretty": "^11",
+    "dotenv": "^16",
+    "bcryptjs": "^2",
+    "jsonwebtoken": "^9"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/bcryptjs": "^2",
+    "@types/jsonwebtoken": "^9",
+    "tsx": "^4",
+    "typescript": "^5",
+    "eslint": "^9"
+  }
+}
