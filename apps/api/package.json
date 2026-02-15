@@ -15,6 +15,7 @@
     "@hono/node-server": "^1",
     "@hostiq/db": "workspace:*",
     "@hostiq/shared": "workspace:*",
+    "@prisma/client": "^6",
     "bcryptjs": "^2",
     "bullmq": "^5",
     "date-fns": "^4",
