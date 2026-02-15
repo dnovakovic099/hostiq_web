@@ -44,42 +44,6 @@ interface AuditResult {
   competitorComparison: string;
 }
 
-const MOCK_LISTING_HEALTH: ListingHealth[] = [
-  {
-    propertyId: "1",
-    propertyName: "Sunset Villa",
-    listingScore: 78,
-    issuesCount: 3,
-    lastAuditedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    propertyId: "2",
-    propertyName: "Beach House",
-    listingScore: 92,
-    issuesCount: 1,
-    lastAuditedAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-  },
-  {
-    propertyId: "3",
-    propertyName: "Mountain Retreat",
-    listingScore: 65,
-    issuesCount: 5,
-    lastAuditedAt: null,
-  },
-];
-
-const MOCK_AUDIT_RESULT: AuditResult = {
-  titleSuggestions: [
-    "Add location: 'Stunning Ocean View Villa - Walk to Beach'",
-    "Include key amenity: 'Pool, WiFi, Parking'",
-    "Consider adding 'Pet-Friendly' if applicable",
-  ],
-  descriptionScore: 72,
-  photoCount: 18,
-  photoQualityNotes: "3 photos could be brighter. Consider adding sunset/dusk shots.",
-  amenityCompleteness: 85,
-  competitorComparison: "Your listing ranks in top 40% for similar properties in the area.",
-};
 
 const MARKETING_TIPS = [
   {
@@ -106,10 +70,11 @@ const MARKETING_TIPS = [
 
 export default function MarketingPage() {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [listingHealth, setListingHealth] = useState<ListingHealth[]>(MOCK_LISTING_HEALTH);
+  const [listingHealth, setListingHealth] = useState<ListingHealth[]>([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(false);
+  const [auditError, setAuditError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProperties = useCallback(async () => {
@@ -117,23 +82,19 @@ export default function MarketingPage() {
       const res = await api.get<{ success: boolean; data: Property[] }>("/properties");
       const items = res.data ?? [];
       setProperties(items);
-      if (items.length > 0) {
-        setListingHealth((prev) => {
-          const existingIds = new Set(prev.map((h) => h.propertyId));
-          const newItems = items
-            .filter((p) => !existingIds.has(p.id))
-            .map((p) => ({
-              propertyId: p.id,
-              propertyName: p.name,
-              listingScore: 75,
-              issuesCount: 0,
-              lastAuditedAt: null as string | null,
-            }));
-          return newItems.length > 0 ? [...prev, ...newItems] : prev;
-        });
-      }
+      // Generate listing health entries from real properties data
+      setListingHealth(
+        items.map((p) => ({
+          propertyId: p.id,
+          propertyName: p.name,
+          listingScore: 75,
+          issuesCount: 0,
+          lastAuditedAt: null as string | null,
+        }))
+      );
     } catch {
       setProperties([]);
+      setListingHealth([]);
     } finally {
       setLoading(false);
     }
@@ -147,20 +108,29 @@ export default function MarketingPage() {
     setAuditLoading(true);
     setSelectedPropertyId(propertyId);
     setAuditResult(null);
+    setAuditError(null);
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      setAuditResult(MOCK_AUDIT_RESULT);
+      const res = await api.post<{ success: boolean; data: AuditResult }>("/ai/listing-audit", {
+        propertyId,
+      });
+      const result = res.data;
+      setAuditResult(result);
+      // Update listing health with audit results
       setListingHealth((prev) =>
         prev.map((h) =>
           h.propertyId === propertyId
             ? {
                 ...h,
                 lastAuditedAt: new Date().toISOString(),
-                listingScore: MOCK_AUDIT_RESULT.descriptionScore + 10,
-                issuesCount: 3,
+                listingScore: result.descriptionScore,
+                issuesCount: result.titleSuggestions.length,
               }
             : h
         )
+      );
+    } catch (error) {
+      setAuditError(
+        error instanceof Error ? error.message : "Failed to run audit. Please try again."
       );
     } finally {
       setAuditLoading(false);
@@ -287,7 +257,13 @@ export default function MarketingPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
             )}
-            {auditResult && !auditLoading && (
+            {auditError && !auditLoading && (
+              <div className="flex items-center gap-2 p-4 rounded-lg border border-destructive bg-destructive/10 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                <p className="text-sm">{auditError}</p>
+              </div>
+            )}
+            {auditResult && !auditLoading && !auditError && (
               <div className="space-y-6">
                 <div>
                   <h4 className="font-medium mb-2 flex items-center gap-2">

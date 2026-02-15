@@ -25,8 +25,11 @@ export default function PortalLayout({
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-violet-500 animate-pulse" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -34,9 +37,9 @@ export default function PortalLayout({
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="lg:pl-64">
+      <div className="lg:pl-[260px]">
         <Topbar />
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-4 lg:p-6 xl:p-8 animate-fade-in">{children}</main>
       </div>
     </div>
   );

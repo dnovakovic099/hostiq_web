@@ -33,7 +33,8 @@ interface Review {
   respondedAt: string | null;
 }
 
-const MOCK_REVIEWS: Review[] = [
+// Sample data - fallback when no reviews API endpoint is available yet
+const INITIAL_REVIEWS: Review[] = [
   {
     id: "1",
     guestName: "Sarah M.",
@@ -98,7 +99,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function ReviewsPage() {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [reviews, setReviews] = useState<Review[]>(MOCK_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [filters, setFilters] = useState({
     propertyId: "",
     rating: "" as string,
@@ -109,6 +110,7 @@ export default function ReviewsPage() {
   const [responseDrafts, setResponseDrafts] = useState<Record<string, string>>({});
   const [aiGeneratingId, setAiGeneratingId] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
+  const [aiErrors, setAiErrors] = useState<Record<string, string>>({});
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -151,11 +153,42 @@ export default function ReviewsPage() {
 
   const generateAiResponse = async (reviewId: string) => {
     setAiGeneratingId(reviewId);
+    setAiErrors((e) => {
+      const next = { ...e };
+      delete next[reviewId];
+      return next;
+    });
     try {
-      await new Promise((r) => setTimeout(r, 1200));
-      const mockResponse =
+      const review = reviews.find((r) => r.id === reviewId);
+      if (!review) {
+        throw new Error("Review not found");
+      }
+
+      const res = await api.post<{ success: boolean; response?: string; error?: string }>(
+        "/ai/review-response",
+        {
+          rating: review.rating,
+          text: review.text,
+          guestName: review.guestName,
+          propertyName: review.propertyName,
+        }
+      );
+
+      if (res.success && res.response) {
+        setResponseDrafts((d) => ({ ...d, [reviewId]: res.response! }));
+      } else {
+        throw new Error(res.error ?? "Invalid response from AI service");
+      }
+    } catch (error) {
+      console.error("Failed to generate AI response:", error);
+      setAiErrors((e) => ({
+        ...e,
+        [reviewId]: "Failed to generate AI response. Please try again or write your own response.",
+      }));
+      // Fallback to generic response
+      const genericResponse =
         "Thank you for your feedback! We're glad you enjoyed your stay. We appreciate you taking the time to share your experience. We hope to welcome you back soon!";
-      setResponseDrafts((d) => ({ ...d, [reviewId]: mockResponse }));
+      setResponseDrafts((d) => ({ ...d, [reviewId]: genericResponse }));
     } finally {
       setAiGeneratingId(null);
     }
@@ -371,6 +404,9 @@ export default function ReviewsPage() {
                               }))
                             }
                           />
+                          {aiErrors[review.id] && (
+                            <p className="text-sm text-destructive">{aiErrors[review.id]}</p>
+                          )}
                           <div className="flex gap-2">
                             <Button
                               size="sm"

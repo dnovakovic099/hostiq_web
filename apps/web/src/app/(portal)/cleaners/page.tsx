@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -11,24 +11,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SprayCan } from "lucide-react";
+import { api } from "@/lib/api";
 
-// Mock data structure - ready to plug in API when available
 interface CleaningTask {
   id: string;
-  date: string;
-  propertyName: string;
-  timeWindow: string;
-  cleanerName: string;
-  status: "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "ESCALATED";
+  scheduledDate: string;
+  timeWindow: string | null;
+  status: string;
+  property: {
+    id: string;
+    name: string;
+  };
+  cleaner: {
+    id: string;
+    name: string;
+  } | null;
+  backupCleaner: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 interface Cleaner {
   id: string;
-  name: string;
+  name: string | null;
   phone: string | null;
-  email: string | null;
-  activeTasksCount: number;
-  rating: number;
+  email: string;
+  role: string;
 }
 
 interface Property {
@@ -36,47 +45,7 @@ interface Property {
   name: string;
 }
 
-// Mock data - replace with API calls when cleaning API exists
-const MOCK_UPCOMING_CLEANINGS: CleaningTask[] = [
-  {
-    id: "1",
-    date: new Date().toISOString().slice(0, 10),
-    propertyName: "Sunset Villa",
-    timeWindow: "11:00-15:00",
-    cleanerName: "Maria Garcia",
-    status: "PENDING",
-  },
-  {
-    id: "2",
-    date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
-    propertyName: "Beach House",
-    timeWindow: "10:00-14:00",
-    cleanerName: "John Smith",
-    status: "CONFIRMED",
-  },
-  {
-    id: "3",
-    date: new Date(Date.now() + 2 * 86400000).toISOString().slice(0, 10),
-    propertyName: "Mountain Retreat",
-    timeWindow: "12:00-16:00",
-    cleanerName: "Maria Garcia",
-    status: "PENDING",
-  },
-];
-
-const MOCK_CLEANERS: Cleaner[] = [
-  { id: "1", name: "Maria Garcia", phone: "+1 555-0101", email: "maria@example.com", activeTasksCount: 3, rating: 4.9 },
-  { id: "2", name: "John Smith", phone: "+1 555-0102", email: "john@example.com", activeTasksCount: 2, rating: 4.7 },
-  { id: "3", name: "Ana Lopez", phone: "+1 555-0103", email: "ana@example.com", activeTasksCount: 0, rating: 5.0 },
-];
-
-const MOCK_PROPERTIES: Property[] = [
-  { id: "1", name: "Sunset Villa" },
-  { id: "2", name: "Beach House" },
-  { id: "3", name: "Mountain Retreat" },
-];
-
-function getStatusVariant(status: CleaningTask["status"]) {
+function getStatusVariant(status: string) {
   switch (status) {
     case "COMPLETED":
       return "default";
@@ -90,14 +59,119 @@ function getStatusVariant(status: CleaningTask["status"]) {
 }
 
 export default function CleanersPage() {
-  const [upcomingCleanings] = useState<CleaningTask[]>(MOCK_UPCOMING_CLEANINGS);
-  const [cleaners] = useState<Cleaner[]>(MOCK_CLEANERS);
-  const [properties] = useState<Property[]>(MOCK_PROPERTIES);
+  const [upcomingCleanings, setUpcomingCleanings] = useState<CleaningTask[]>([]);
+  const [cleaners, setCleaners] = useState<Cleaner[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [assignmentForm, setAssignmentForm] = useState({
     propertyId: "",
     primaryCleanerId: "",
     backupCleanerId: "",
   });
+  const [assigning, setAssigning] = useState(false);
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [assignSuccess, setAssignSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      // Calculate date range for next 7 days
+      const startDate = new Date().toISOString().split("T")[0];
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 7);
+      const endDateStr = endDate.toISOString().split("T")[0];
+
+      const [cleaningsRes, cleanersRes, propertiesRes] = await Promise.all([
+        api.get<{ success: true; data: { items: CleaningTask[]; pagination: unknown } }>(
+          `/cleaning?startDate=${startDate}&endDate=${endDateStr}&pageSize=50`
+        ),
+        api.get<{ success: true; data: Cleaner[] }>("/admin/users"),
+        api.get<{ success: true; data: Property[] }>("/properties"),
+      ]);
+
+      setUpcomingCleanings(cleaningsRes.data.items || []);
+      
+      // Filter cleaners by role
+      const cleanerUsers = (cleanersRes.data || []).filter(
+        (u) => u.role === "CLEANER"
+      );
+      setCleaners(cleanerUsers);
+      
+      setProperties(propertiesRes.data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAssign = async () => {
+    if (!assignmentForm.propertyId || !assignmentForm.primaryCleanerId) {
+      return;
+    }
+
+    try {
+      setAssignError(null);
+      setAssignSuccess(false);
+      setAssigning(true);
+
+      await api.put<{ success: true; data: unknown }>("/cleaning/assign", {
+        propertyId: assignmentForm.propertyId,
+        primaryCleanerId: assignmentForm.primaryCleanerId,
+        backupCleanerId: assignmentForm.backupCleanerId || undefined,
+      });
+
+      setAssignSuccess(true);
+      setAssignmentForm({
+        propertyId: "",
+        primaryCleanerId: "",
+        backupCleanerId: "",
+      });
+      
+      // Refresh data to show updated assignments
+      await fetchData();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setAssignSuccess(false), 3000);
+    } catch (err) {
+      setAssignError(err instanceof Error ? err.message : "Failed to assign cleaner");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
+  // Calculate active tasks count for each cleaner
+  const getActiveTasksCount = (cleanerId: string) => {
+    return upcomingCleanings.filter(
+      (task) =>
+        (task.cleaner?.id === cleanerId || task.backupCleaner?.id === cleanerId) &&
+        task.status !== "COMPLETED" &&
+        task.status !== "CANCELLED"
+    ).length;
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Cleaners</h1>
+          <p className="text-muted-foreground">Cleaner coordination and task management</p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -105,6 +179,14 @@ export default function CleanersPage() {
         <h1 className="text-2xl font-bold tracking-tight">Cleaners</h1>
         <p className="text-muted-foreground">Cleaner coordination and task management</p>
       </div>
+
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">{error}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Upcoming Cleanings */}
       <Card>
@@ -117,24 +199,28 @@ export default function CleanersPage() {
         </CardHeader>
         <CardContent>
           {upcomingCleanings.length === 0 ? (
-            <p className="text-muted-foreground py-4">No upcoming cleanings. Data will load when cleaning API is connected.</p>
+            <p className="text-muted-foreground py-4">No upcoming cleanings scheduled.</p>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {upcomingCleanings.map((task) => (
                 <Card key={task.id} className="bg-muted/30">
                   <CardContent className="pt-4">
                     <div className="space-y-2">
-                      <p className="font-medium">{task.propertyName}</p>
+                      <p className="font-medium">{task.property.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(task.date).toLocaleDateString("en-US", {
+                        {new Date(task.scheduledDate).toLocaleDateString("en-US", {
                           weekday: "short",
                           month: "short",
                           day: "numeric",
                         })}
                       </p>
-                      <p className="text-sm">{task.timeWindow}</p>
-                      <p className="text-sm">{task.cleanerName}</p>
-                      <Badge variant={getStatusVariant(task.status)}>{task.status.replace("_", " ")}</Badge>
+                      {task.timeWindow && <p className="text-sm">{task.timeWindow}</p>}
+                      <p className="text-sm">
+                        {task.cleaner?.name || task.backupCleaner?.name || "Unassigned"}
+                      </p>
+                      <Badge variant={getStatusVariant(task.status)}>
+                        {task.status.replace("_", " ")}
+                      </Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -153,7 +239,7 @@ export default function CleanersPage() {
           </CardHeader>
           <CardContent>
             {cleaners.length === 0 ? (
-              <p className="text-muted-foreground py-4">No cleaners yet. Add cleaners when API is available.</p>
+              <p className="text-muted-foreground py-4">No cleaners found.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -163,17 +249,15 @@ export default function CleanersPage() {
                       <th className="text-left p-4 font-medium">Phone</th>
                       <th className="text-left p-4 font-medium">Email</th>
                       <th className="text-left p-4 font-medium">Active Tasks</th>
-                      <th className="text-left p-4 font-medium">Rating</th>
                     </tr>
                   </thead>
                   <tbody>
                     {cleaners.map((c) => (
                       <tr key={c.id} className="border-b">
-                        <td className="p-4 font-medium">{c.name}</td>
+                        <td className="p-4 font-medium">{c.name || "—"}</td>
                         <td className="p-4">{c.phone ?? "—"}</td>
-                        <td className="p-4">{c.email ?? "—"}</td>
-                        <td className="p-4">{c.activeTasksCount}</td>
-                        <td className="p-4">{c.rating.toFixed(1)}</td>
+                        <td className="p-4">{c.email}</td>
+                        <td className="p-4">{getActiveTasksCount(c.id)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -190,6 +274,12 @@ export default function CleanersPage() {
             <CardDescription>Assign primary and backup cleaner to a property</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {assignError && (
+              <p className="text-sm text-destructive">{assignError}</p>
+            )}
+            {assignSuccess && (
+              <p className="text-sm text-green-600">Assignment saved successfully!</p>
+            )}
             <div>
               <label className="text-sm font-medium mb-1 block">Property</label>
               <select
@@ -219,7 +309,7 @@ export default function CleanersPage() {
                 <option value="">Select</option>
                 {cleaners.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}
+                    {c.name || c.email}
                   </option>
                 ))}
               </select>
@@ -233,10 +323,10 @@ export default function CleanersPage() {
                   setAssignmentForm((f) => ({ ...f, backupCleanerId: e.target.value }))
                 }
               >
-                <option value="">Select</option>
+                <option value="">Select (optional)</option>
                 {cleaners.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}
+                    {c.name || c.email}
                   </option>
                 ))}
               </select>
@@ -245,14 +335,12 @@ export default function CleanersPage() {
               className="w-full"
               disabled={
                 !assignmentForm.propertyId ||
-                !assignmentForm.primaryCleanerId
+                !assignmentForm.primaryCleanerId ||
+                assigning
               }
-              onClick={() => {
-                // TODO: POST /api/cleaners/assignments when API exists
-                alert("Assignment API not yet available. Structure ready for integration.");
-              }}
+              onClick={handleAssign}
             >
-              Save assignment
+              {assigning ? "Saving..." : "Save assignment"}
             </Button>
           </CardContent>
         </Card>

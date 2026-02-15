@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
-  Plus,
   Calendar,
   MessageSquare,
   AlertTriangle,
@@ -23,6 +22,12 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
+  ArrowUpRight,
+  ArrowDownRight,
+  Users,
+  DollarSign,
+  TrendingUp,
+  BedDouble,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useSSE } from "@/hooks/use-sse";
@@ -115,7 +120,12 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground mt-1">Loading your data...</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="h-32 rounded-xl bg-muted/50 animate-pulse" />
+          ))}
         </div>
       </div>
     );
@@ -132,122 +142,176 @@ export default function DashboardPage() {
     );
   }
 
+  const statCards = [
+    {
+      label: "Check-ins Today",
+      value: stats?.checkInsToday ?? 0,
+      sub: "Guests arriving today",
+      icon: ArrowDownRight,
+      accent: "stat-accent-blue",
+      iconColor: "text-blue-500 bg-blue-50",
+    },
+    {
+      label: "Check-outs Today",
+      value: stats?.checkOutsToday ?? 0,
+      sub: "Guests departing today",
+      icon: ArrowUpRight,
+      accent: "stat-accent-amber",
+      iconColor: "text-amber-600 bg-amber-50",
+    },
+    {
+      label: "Active Guests",
+      value: stats?.activeGuests ?? 0,
+      sub: "Currently staying",
+      icon: Users,
+      accent: "stat-accent-green",
+      iconColor: "text-emerald-600 bg-emerald-50",
+    },
+    {
+      label: "Revenue This Month",
+      value: `$${(stats?.revenueThisMonth ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+      sub: "Total from all properties",
+      icon: DollarSign,
+      accent: "stat-accent-indigo",
+      iconColor: "text-indigo-600 bg-indigo-50",
+    },
+    {
+      label: "Occupancy Rate",
+      value: `${stats?.occupancyRate ?? 0}%`,
+      sub: "Average across listings",
+      icon: BedDouble,
+      accent: "stat-accent-purple",
+      iconColor: "text-violet-600 bg-violet-50",
+    },
+    {
+      label: "Avg Nightly Rate",
+      value: `$${(stats?.avgNightlyRate ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
+      sub: "This month",
+      icon: TrendingUp,
+      accent: "stat-accent-cyan",
+      iconColor: "text-cyan-600 bg-cyan-50",
+    },
+    {
+      label: "Open Issues",
+      value: stats?.openIssuesCount ?? 0,
+      sub: "Requires attention",
+      icon: AlertTriangle,
+      accent: "stat-accent-rose",
+      iconColor: (stats?.openIssuesCount ?? 0) > 0
+        ? "text-rose-600 bg-rose-50"
+        : "text-emerald-600 bg-emerald-50",
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of your property management metrics
-        </p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-0.5">
+            Overview of your {properties.length} properties
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/reservations">
+            <Button variant="outline" size="sm">
+              <Calendar className="mr-1.5 h-3.5 w-3.5" />
+              Reservations
+            </Button>
+          </Link>
+          <Link href="/issues">
+            <Button variant="outline" size="sm">
+              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+              Issues
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Today's Activity Row */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Check-ins Today</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.checkInsToday ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Guests arriving today</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Check-outs Today</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.checkOutsToday ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Guests departing today</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Guests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.activeGuests ?? 0}</div>
-            <p className="text-xs text-muted-foreground">Currently staying</p>
-          </CardContent>
-        </Card>
+      {/* Stat Cards Grid */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        {statCards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <Card
+              key={card.label}
+              className={cn(
+                "stat-accent",
+                card.accent,
+                i === 3 && "col-span-2 lg:col-span-1", // revenue gets extra width on small screens
+              )}
+            >
+              <CardContent className="p-4 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">{card.label}</span>
+                  <div className={cn("flex h-7 w-7 items-center justify-center rounded-md", card.iconColor)}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xl font-bold tracking-tight">{card.value}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{card.sub}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Key Metrics Row */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Revenue This Month</CardTitle>
-            <CardDescription>Total revenue from all properties</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(stats?.revenueThisMonth ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Occupancy Rate</CardTitle>
-            <CardDescription>Average across all listings</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.occupancyRate ?? 0}%</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Avg Nightly Rate</CardTitle>
-            <CardDescription>This month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(stats?.avgNightlyRate ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Open Issues</CardTitle>
-            <CardDescription>Issues requiring attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.openIssuesCount ?? 0}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-5">
         {/* Recent Activity Timeline */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>Last 10 events across reservations, messages, and issues</CardDescription>
+        <Card className="lg:col-span-3">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  Recent Activity
+                </CardTitle>
+                <CardDescription>Latest events across your properties</CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-xs font-normal">
+                Live
+                <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             {activity.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4">No recent activity</p>
+              <p className="text-sm text-muted-foreground py-8 text-center">No recent activity</p>
             ) : (
-              <ul className="space-y-3">
-                {activity.map((item) => (
+              <ul className="space-y-1">
+                {activity.map((item, i) => (
                   <li
                     key={`${item.type}-${item.id}`}
-                    className="flex gap-3 text-sm border-b pb-3 last:border-0 last:pb-0"
+                    className="flex gap-3 text-sm py-3 border-b border-border/40 last:border-0 animate-fade-in"
+                    style={{ animationDelay: `${i * 60}ms` }}
                   >
                     <span className="shrink-0 mt-0.5">
-                      {item.type === "reservation" && <Calendar className="h-4 w-4 text-primary" />}
-                      {item.type === "message" && <MessageSquare className="h-4 w-4 text-blue-500" />}
-                      {item.type === "issue" && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                      {item.type === "reservation" && (
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500">
+                          <Calendar className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                      {item.type === "message" && (
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-50 text-violet-500">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                      {item.type === "issue" && (
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-50 text-rose-500">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                        </span>
+                      )}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium">{item.title}</p>
-                      <p className="text-muted-foreground truncate">{item.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(item.timestamp).toLocaleString()}
-                      </p>
+                      <p className="font-medium text-[13px]">{item.title}</p>
+                      <p className="text-muted-foreground text-xs truncate mt-0.5">{item.description}</p>
                     </div>
+                    <span className="text-[11px] text-muted-foreground shrink-0 mt-0.5">
+                      {new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -255,73 +319,77 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Health Score Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Integration Health
-            </CardTitle>
-            <CardDescription>Status of connected integrations</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {["hostify", "hostbuddy", "openphone"].map((name) => {
-              const status = getIntegrationStatus(name);
-              return (
-                <div key={name} className="flex items-center justify-between">
-                  <span className="font-medium capitalize">{name}</span>
-                  <Badge
-                    variant={
-                      status === "healthy"
-                        ? "default"
-                        : status === "error"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                    className={cn(
-                      status === "healthy" && "bg-green-600 hover:bg-green-700",
-                      status === "degraded" && "bg-yellow-600 hover:bg-yellow-700"
-                    )}
-                  >
-                    {status === "healthy" && <CheckCircle2 className="h-3 w-3 mr-1" />}
-                    {status === "degraded" && <AlertCircle className="h-3 w-3 mr-1" />}
-                    {status === "error" && <XCircle className="h-3 w-3 mr-1" />}
-                    {status}
-                  </Badge>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      </div>
+        {/* Right column */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Integration Health */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Zap className="h-4 w-4 text-muted-foreground" />
+                Integrations
+              </CardTitle>
+              <CardDescription>Connected service status</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {["hostify", "hostbuddy", "openphone"].map((name) => {
+                const status = getIntegrationStatus(name);
+                return (
+                  <div key={name} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                    <span className="text-sm font-medium capitalize">{name}</span>
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "text-[11px] font-medium gap-1",
+                        status === "healthy" && "bg-emerald-50 text-emerald-700 border-emerald-200",
+                        status === "degraded" && "bg-amber-50 text-amber-700 border-amber-200",
+                        status === "error" && "bg-rose-50 text-rose-700 border-rose-200"
+                      )}
+                    >
+                      {status === "healthy" && <CheckCircle2 className="h-3 w-3" />}
+                      {status === "degraded" && <AlertCircle className="h-3 w-3" />}
+                      {status === "error" && <XCircle className="h-3 w-3" />}
+                      {status}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/reservations">
-            <Button>
-              <Home className="mr-2 h-4 w-4" />
-              New Property
-            </Button>
-          </Link>
-          <Link href="/messages">
-            <Button variant="outline">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Send Message
-            </Button>
-          </Link>
-          <Link href="/issues">
-            <Button variant="outline">
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              View All Issues
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              <Link href="/reservations" className="block">
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
+                  <Home className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs font-medium">Properties</span>
+                </div>
+              </Link>
+              <Link href="/messages" className="block">
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
+                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs font-medium">Messages</span>
+                </div>
+              </Link>
+              <Link href="/reviews" className="block">
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
+                  <Activity className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs font-medium">Reviews</span>
+                </div>
+              </Link>
+              <Link href="/issues" className="block">
+                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
+                  <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs font-medium">Issues</span>
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

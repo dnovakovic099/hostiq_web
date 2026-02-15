@@ -10,6 +10,7 @@ export interface AuthUser {
   email: string;
   name: string | null;
   role: UserRole;
+  avatarUrl?: string | null;
 }
 
 interface AuthState {

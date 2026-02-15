@@ -32,3 +32,9 @@ uploads/
 
 # OS
 Thumbs.db
+
+# Screenshots and test artifacts
+screenshots/
+error-screenshots/
+TEST-RESULTS.md
+capture-screenshots.js

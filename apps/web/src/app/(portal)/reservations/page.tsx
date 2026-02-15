@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -293,9 +293,8 @@ export default function ReservationsPage() {
                   </thead>
                   <tbody>
                     {reservations.map((r) => (
-                      <>
+                      <React.Fragment key={r.id}>
                         <tr
-                          key={r.id}
                           className="border-b hover:bg-muted/50 cursor-pointer"
                           onClick={() => toggleExpand(r.id)}
                         >
@@ -380,7 +379,7 @@ export default function ReservationsPage() {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
