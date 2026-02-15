@@ -22,6 +22,10 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    --badge-critical: 0 84% 60%;
+    --badge-high: 25 95% 53%;
+    --badge-medium: 45 93% 47%;
+    --badge-low: 217 91% 60%;
   }
 
   .dark {
@@ -42,6 +46,10 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+    --badge-critical: 0 62.8% 50%;
+    --badge-high: 25 95% 45%;
+    --badge-medium: 45 93% 40%;
+    --badge-low: 217 91% 55%;
   }
 }
 

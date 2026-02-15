@@ -39,6 +39,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "badge-critical": "hsl(var(--badge-critical))",
+        "badge-high": "hsl(var(--badge-high))",
+        "badge-medium": "hsl(var(--badge-medium))",
+        "badge-low": "hsl(var(--badge-low))",
       },
       borderRadius: {
         lg: "var(--radius)",
