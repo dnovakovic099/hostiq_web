@@ -19,6 +19,8 @@ import reportsRoutes from "./routes/reports";
 import { registerEventHandlers } from "./events";
 import { registerSSEBridge } from "./events/sse-bridge";
 import { startScheduler } from "./workers/scheduler";
+import { prisma } from "@hostiq/db";
+import { hashPassword } from "./lib/auth";
 
 const app = new Hono();
 
@@ -48,12 +50,9 @@ app.post("/seed", async (c) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
   try {
-    const { prisma } = await import("@hostiq/db");
-    const bcrypt = await import("bcryptjs");
-
-    const adminHash = await bcrypt.hash("admin123!", 12);
-    const ownerHash = await bcrypt.hash("owner123!", 12);
-    const cleanerHash = await bcrypt.hash("cleaner123!", 12);
+    const adminHash = await hashPassword("admin123!");
+    const ownerHash = await hashPassword("owner123!");
+    const cleanerHash = await hashPassword("cleaner123!");
 
     await prisma.user.upsert({
       where: { email: "admin@hostiq.app" },
