@@ -41,6 +41,56 @@ app.get("/health", (c) => {
   });
 });
 
+// Seed endpoint (one-time use, protected by NEXTAUTH_SECRET)
+app.post("/seed", async (c) => {
+  const { secret } = await c.req.json().catch(() => ({ secret: "" }));
+  if (secret !== env.NEXTAUTH_SECRET) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  try {
+    const { prisma } = await import("@hostiq/db");
+    const bcrypt = await import("bcryptjs");
+
+    const adminHash = await bcrypt.hash("admin123!", 12);
+    const ownerHash = await bcrypt.hash("owner123!", 12);
+    const cleanerHash = await bcrypt.hash("cleaner123!", 12);
+
+    await prisma.user.upsert({
+      where: { email: "admin@hostiq.app" },
+      update: { passwordHash: adminHash },
+      create: { email: "admin@hostiq.app", name: "HostIQ Admin", passwordHash: adminHash, role: "ADMIN", phone: "+15555550100" },
+    });
+    await prisma.user.upsert({
+      where: { email: "owner@demo.com" },
+      update: { passwordHash: ownerHash },
+      create: { email: "owner@demo.com", name: "Demo Owner", passwordHash: ownerHash, role: "OWNER", phone: "+15555550101" },
+    });
+    const cleanerUser = await prisma.user.upsert({
+      where: { email: "cleaner@demo.com" },
+      update: { passwordHash: cleanerHash },
+      create: { email: "cleaner@demo.com", name: "Demo Cleaner", passwordHash: cleanerHash, role: "CLEANER", phone: "+15555550102" },
+    });
+    await prisma.cleaner.upsert({
+      where: { userId: cleanerUser.id },
+      update: {},
+      create: { userId: cleanerUser.id, name: "Demo Cleaner", phone: "+15555550102", email: "cleaner@demo.com", rate: 75.0 },
+    });
+    for (const integration of ["hostify", "hostbuddy", "openphone", "openai"]) {
+      await prisma.integrationHealth.upsert({ where: { integration }, update: {}, create: { integration, status: "unknown" } });
+    }
+    for (const entityType of ["listings", "reservations", "messages", "reviews"]) {
+      await prisma.syncCheckpoint.upsert({
+        where: { integration_entityType: { integration: "hostify", entityType } },
+        update: {},
+        create: { integration: "hostify", entityType, totalSynced: 0 },
+      });
+    }
+    return c.json({ success: true, message: "Database seeded successfully" });
+  } catch (err: any) {
+    return c.json({ success: false, error: err.message }, 500);
+  }
+});
+
 // API routes
 const api = new Hono();
 
