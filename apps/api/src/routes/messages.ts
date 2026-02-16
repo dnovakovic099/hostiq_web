@@ -37,6 +37,15 @@ function getPropertyFilter(user: { userId: string; role: UserRole }) {
 }
 
 // ============================================
+// GET / - Alias for /threads
+// ============================================
+messages.get("/", async (c) => {
+  const url = new URL(c.req.url);
+  url.pathname = url.pathname.replace(/\/?$/, "/threads");
+  return c.redirect(url.toString(), 302);
+});
+
+// ============================================
 // GET /threads - List message threads
 // ============================================
 messages.get("/threads", async (c) => {

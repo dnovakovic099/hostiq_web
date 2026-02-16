@@ -24,7 +24,9 @@ export interface JWTPayload {
 }
 
 export function signToken(payload: JWTPayload, expiresIn = "7d"): string {
-  return jwt.sign(payload, env.NEXTAUTH_SECRET, { expiresIn });
+  return jwt.sign(payload, env.NEXTAUTH_SECRET, {
+    expiresIn: expiresIn as unknown as number,
+  });
 }
 
 export function verifyToken(token: string): JWTPayload {

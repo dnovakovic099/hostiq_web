@@ -50,7 +50,7 @@ reports.get("/owner-summary", async (c) => {
   const propertyReports = properties.map((property) => {
     const reservations = property.reservations;
     const totalRevenue = reservations.reduce(
-      (sum, r) => sum + (r.totalPayout?.toNumber() ?? 0),
+      (sum, r) => sum + (r.total ?? 0),
       0
     );
     const totalNights = reservations.reduce((sum, r) => sum + (r.nights ?? 0), 0);
@@ -65,16 +65,16 @@ reports.get("/owner-summary", async (c) => {
     const totalCleanings = property.cleaningTasks.length;
 
     const openIssues = property.guestIssues.filter(
-      (i) => i.status === "open"
+      (i) => i.status === "OPEN"
     ).length;
     const resolvedIssues = property.guestIssues.filter(
-      (i) => i.status === "resolved"
+      (i) => i.status === "RESOLVED"
     ).length;
 
     const channels = reservations.reduce(
       (acc, r) => {
         const ch = r.channel || "Direct";
-        acc[ch] = (acc[ch] || 0) + (r.totalPayout?.toNumber() ?? 0);
+        acc[ch] = (acc[ch] || 0) + (r.total ?? 0);
         return acc;
       },
       {} as Record<string, number>
@@ -97,11 +97,11 @@ reports.get("/owner-summary", async (c) => {
       revenueByChannel: channels,
       topGuests: reservations
         .filter((r) => r.guest)
-        .sort((a, b) => (b.totalPayout?.toNumber() ?? 0) - (a.totalPayout?.toNumber() ?? 0))
+        .sort((a, b) => (b.total ?? 0) - (a.total ?? 0))
         .slice(0, 5)
         .map((r) => ({
           name: r.guest?.name ?? "Unknown",
-          total: r.totalPayout?.toNumber() ?? 0,
+          total: r.total ?? 0,
           nights: r.nights ?? 0,
         })),
     };
@@ -177,7 +177,7 @@ reports.get("/performance", async (c) => {
     });
 
     const revenue = reservations.reduce(
-      (s, r) => s + (r.totalPayout?.toNumber() ?? 0),
+      (s, r) => s + (r.total ?? 0),
       0
     );
     const nights = reservations.reduce((s, r) => s + (r.nights ?? 0), 0);
@@ -247,9 +247,9 @@ reports.get("/cleaning", async (c) => {
   );
 
   const avgTurnaroundMinutes = tasks
-    .filter((t) => t.completedAt && t.confirmedAt)
+    .filter((t) => t.completedAt && t.acknowledgedAt)
     .map((t) => {
-      const start = new Date(t.confirmedAt!).getTime();
+      const start = new Date(t.acknowledgedAt!).getTime();
       const end = new Date(t.completedAt!).getTime();
       return (end - start) / 60000;
     });
@@ -313,7 +313,7 @@ reports.post("/generate-html", async (c) => {
 
   // Generate HTML report
   const totalRevenue = properties.reduce(
-    (s, p) => s + p.reservations.reduce((rs, r) => rs + (r.totalPayout?.toNumber() ?? 0), 0),
+    (s, p) => s + p.reservations.reduce((rs, r) => rs + (r.total ?? 0), 0),
     0
   );
   const totalReservations = properties.reduce((s, p) => s + p.reservations.length, 0);
@@ -368,7 +368,7 @@ reports.post("/generate-html", async (c) => {
     <h3>${p.name}</h3>
     <div class="stats-row">
       <div class="stat">
-        <div class="val">$${p.reservations.reduce((s, r) => s + (r.totalPayout?.toNumber() ?? 0), 0).toLocaleString()}</div>
+        <div class="val">$${p.reservations.reduce((s, r) => s + (r.total ?? 0), 0).toLocaleString()}</div>
         <div class="lbl">Revenue</div>
       </div>
       <div class="stat">
@@ -380,7 +380,7 @@ reports.post("/generate-html", async (c) => {
         <div class="lbl">Cleanings Done</div>
       </div>
       <div class="stat">
-        <div class="val">${p.guestIssues.filter((i) => i.status === "open").length}</div>
+        <div class="val">${p.guestIssues.filter((i) => i.status === "OPEN").length}</div>
         <div class="lbl">Open Issues</div>
       </div>
     </div>

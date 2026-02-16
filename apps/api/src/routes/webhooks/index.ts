@@ -109,7 +109,7 @@ webhooks.post("/hostify", async (c) => {
           subject,
           message: innerMessage,
           received_at: new Date().toISOString(),
-        } as Record<string, unknown>,
+        } as any,
         outcome: "received",
       },
     });
@@ -272,7 +272,7 @@ webhooks.post("/hostbuddy", async (c) => {
           category,
           severity: issue.severity,
           property_id: propertyId,
-        } as Record<string, unknown>,
+        } as any,
         outcome: "issue_created",
         confidence: 1.0,
       },

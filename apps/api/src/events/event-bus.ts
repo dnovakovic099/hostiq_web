@@ -118,11 +118,11 @@ export async function emitToDLQ(
       eventType: `dlq.${type}`,
       eventPayload: {
         original_type: type,
-        payload: payload as Record<string, unknown>,
+        payload: payload as any,
         error,
         source,
         dlq_at: new Date().toISOString(),
-      },
+      } as any,
       outcome: "dead_lettered",
       confidence: 0,
       error,

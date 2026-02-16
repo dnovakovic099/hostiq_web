@@ -113,7 +113,16 @@ export default function MarketingPage() {
       const res = await api.post<{ success: boolean; data: AuditResult }>("/ai/listing-audit", {
         propertyId,
       });
-      const result = res.data;
+      const raw = res?.data;
+      // Provide safe defaults so a malformed/partial response never crashes
+      const result: AuditResult = {
+        titleSuggestions: Array.isArray(raw?.titleSuggestions) ? raw.titleSuggestions : [],
+        descriptionScore: typeof raw?.descriptionScore === "number" ? raw.descriptionScore : 0,
+        photoCount: typeof raw?.photoCount === "number" ? raw.photoCount : 0,
+        photoQualityNotes: raw?.photoQualityNotes ?? "N/A",
+        amenityCompleteness: typeof raw?.amenityCompleteness === "number" ? raw.amenityCompleteness : 0,
+        competitorComparison: raw?.competitorComparison ?? "N/A",
+      };
       setAuditResult(result);
       // Update listing health with audit results
       setListingHealth((prev) =>

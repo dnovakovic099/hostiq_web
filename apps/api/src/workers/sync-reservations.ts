@@ -1,6 +1,6 @@
 import { prisma } from "@hostiq/db";
 
-type ReservationStatus = "INQUIRY" | "PENDING" | "ACCEPTED" | "CANCELLED" | "COMPLETED" | "MOVED";
+type ReservationStatus = "INQUIRY" | "PRE_APPROVED" | "ACCEPTED" | "MOVED" | "EXTENDED" | "CANCELLED" | "COMPLETED";
 import { hostify } from "../integrations/hostify/client";
 
 const INTEGRATION = "hostify";
