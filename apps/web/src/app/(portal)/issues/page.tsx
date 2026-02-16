@@ -191,9 +191,9 @@ export default function IssuesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Issues</h1>
-        <p className="text-muted-foreground">Guest issues and resolution tracking</p>
+      <div className="page-header">
+        <h1>Issues</h1>
+        <p>Guest issues and resolution tracking</p>
       </div>
 
       {/* Summary cards */}
@@ -240,7 +240,7 @@ export default function IssuesPage() {
             <div className="min-w-[180px]">
               <label className="text-sm font-medium mb-1 block">Property</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.propertyId}
                 onChange={(e) => setFilters((f) => ({ ...f, propertyId: e.target.value, page: 1 }))}
               >
@@ -263,7 +263,7 @@ export default function IssuesPage() {
             <div className="min-w-[120px]">
               <label className="text-sm font-medium mb-1 block">Severity</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.severity}
                 onChange={(e) => setFilters((f) => ({ ...f, severity: e.target.value, page: 1 }))}
               >
@@ -277,7 +277,7 @@ export default function IssuesPage() {
             <div className="min-w-[140px]">
               <label className="text-sm font-medium mb-1 block">Status</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.status}
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, status: e.target.value as IssueStatus | "", page: 1 }))
@@ -329,7 +329,7 @@ export default function IssuesPage() {
           ) : (
             <Card>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="premium-table">
                   <thead>
                     <tr className="border-b">
                       <th className="text-left p-4 font-medium">Category</th>
@@ -415,7 +415,7 @@ export default function IssuesPage() {
                                     <div>
                                       <label className="text-sm font-medium mb-1 block">Status</label>
                                       <select
-                                        className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                                        className="filter-select w-full"
                                         value={resolutionForm.status}
                                         onChange={(e) =>
                                           setResolutionForm((f) => ({

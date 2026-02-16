@@ -234,9 +234,9 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Reviews</h1>
-        <p className="text-muted-foreground">Manage your guest reviews and responses</p>
+      <div className="page-header">
+        <h1>Reviews</h1>
+        <p>Manage guest reviews and AI-powered responses</p>
       </div>
 
       {/* Review Stats Cards */}
@@ -287,7 +287,7 @@ export default function ReviewsPage() {
             <div className="min-w-[180px]">
               <label className="text-sm font-medium mb-1 block">Property</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.propertyId}
                 onChange={(e) => setFilters((f) => ({ ...f, propertyId: e.target.value }))}
               >
@@ -311,7 +311,7 @@ export default function ReviewsPage() {
             <div className="min-w-[140px]">
               <label className="text-sm font-medium mb-1 block">Rating</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.rating}
                 onChange={(e) => setFilters((f) => ({ ...f, rating: e.target.value }))}
               >

@@ -136,9 +136,9 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
-        <p className="text-muted-foreground">User management, integrations, and audit log</p>
+      <div className="page-header">
+        <h1>Admin</h1>
+        <p>User management, integrations, and audit log</p>
       </div>
 
       {error && <p className="text-destructive">{error}</p>}
@@ -158,7 +158,7 @@ export default function AdminPage() {
               <p className="text-muted-foreground py-4">No users found</p>
             ) : (
               <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-                <table className="w-full">
+                <table className="premium-table">
                   <thead>
                     <tr className="border-b">
                       <th className="text-left p-3 font-medium text-sm">Email</th>
@@ -212,7 +212,7 @@ export default function AdminPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Role</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={inviteForm.role}
                 onChange={(e) =>
                   setInviteForm((f) => ({
@@ -335,7 +335,7 @@ export default function AdminPage() {
             <p className="text-muted-foreground py-4">No audit entries</p>
           ) : (
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-              <table className="w-full">
+              <table className="premium-table">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium text-sm">Action</th>

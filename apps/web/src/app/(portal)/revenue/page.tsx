@@ -258,9 +258,9 @@ export default function RevenuePage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Revenue</h1>
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Revenue</h1>
+          <p>Loading...</p>
         </div>
       </div>
     );
@@ -269,8 +269,8 @@ export default function RevenuePage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Revenue</h1>
+        <div className="page-header">
+          <h1>Revenue</h1>
           <p className="text-destructive mt-2">{error}</p>
         </div>
       </div>
@@ -279,9 +279,9 @@ export default function RevenuePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Revenue</h1>
-        <p className="text-muted-foreground">Revenue dashboard and analytics</p>
+      <div className="page-header">
+        <h1>Revenue</h1>
+        <p>Revenue analytics and performance tracking</p>
       </div>
 
       {/* Summary Cards */}
@@ -350,7 +350,7 @@ export default function RevenuePage() {
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="premium-table">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-3 font-medium">Property</th>
@@ -463,7 +463,7 @@ export default function RevenuePage() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="premium-table">
               <thead>
                 <tr className="border-b">
                   <th className="text-left p-4 font-medium">Date</th>

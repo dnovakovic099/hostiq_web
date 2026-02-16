@@ -160,9 +160,9 @@ export default function CleanersPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Cleaners</h1>
-          <p className="text-muted-foreground">Cleaner coordination and task management</p>
+        <div className="page-header">
+          <h1>Cleaners</h1>
+          <p>Cleaner coordination and task management</p>
         </div>
         <Card>
           <CardContent className="pt-6">
@@ -175,9 +175,9 @@ export default function CleanersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Cleaners</h1>
-        <p className="text-muted-foreground">Cleaner coordination and task management</p>
+      <div className="page-header">
+        <h1>Cleaners</h1>
+        <p>Cleaner coordination and task management</p>
       </div>
 
       {error && (
@@ -242,7 +242,7 @@ export default function CleanersPage() {
               <p className="text-muted-foreground py-4">No cleaners found.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="premium-table">
                   <thead>
                     <tr className="border-b">
                       <th className="text-left p-4 font-medium">Name</th>
@@ -283,7 +283,7 @@ export default function CleanersPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Property</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={assignmentForm.propertyId}
                 onChange={(e) =>
                   setAssignmentForm((f) => ({ ...f, propertyId: e.target.value }))
@@ -300,7 +300,7 @@ export default function CleanersPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Primary cleaner</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={assignmentForm.primaryCleanerId}
                 onChange={(e) =>
                   setAssignmentForm((f) => ({ ...f, primaryCleanerId: e.target.value }))
@@ -317,7 +317,7 @@ export default function CleanersPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Backup cleaner</label>
               <select
-                className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={assignmentForm.backupCleanerId}
                 onChange={(e) =>
                   setAssignmentForm((f) => ({ ...f, backupCleanerId: e.target.value }))

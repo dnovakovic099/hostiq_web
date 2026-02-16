@@ -70,7 +70,7 @@ export default function AuthLayout({
             </Link>
           </div>
 
-          <div className="rounded-2xl border border-border/60 bg-card p-8 shadow-card">
+          <div className="rounded-2xl border border-border/40 bg-card p-8 shadow-[0_4px_24px_-4px_rgb(0_0_0/0.08)]">
             {children}
           </div>
 

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
+    --background: 220 16% 96%;
     --foreground: 224 71% 4%;
     --card: 0 0% 100%;
     --card-foreground: 224 71% 4%;
@@ -21,7 +21,7 @@
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 234 89% 60%;
-    --radius: 0.625rem;
+    --radius: 0.75rem;
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --badge-critical: 0 84% 60%;
@@ -29,11 +29,18 @@
     --badge-medium: 45 93% 47%;
     --badge-low: 217 91% 60%;
 
-    /* sidebar */
+    /* Sidebar */
     --sidebar-bg: 228 33% 10%;
     --sidebar-fg: 220 20% 80%;
     --sidebar-accent: 234 89% 60%;
     --sidebar-muted: 228 20% 18%;
+
+    /* Shadows */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+    --shadow-float: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    --shadow-overlay: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
   }
 
   .dark {
@@ -80,26 +87,145 @@
     @apply bg-background text-foreground;
   }
 
-  /* Better focus rings */
   :focus-visible {
     @apply outline-none ring-2 ring-ring/40 ring-offset-2 ring-offset-background;
   }
 }
 
+@layer components {
+  /* Modern page header */
+  .page-header {
+    @apply mb-8;
+  }
+  .page-header h1 {
+    @apply text-2xl font-bold tracking-tight text-foreground;
+  }
+  .page-header p {
+    @apply text-sm text-muted-foreground mt-1;
+  }
+
+  /* Premium table */
+  .premium-table {
+    @apply w-full;
+  }
+  .premium-table thead {
+    @apply bg-muted/40;
+  }
+  .premium-table thead th {
+    @apply text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/70;
+  }
+  .premium-table tbody tr {
+    @apply border-b border-border/40 transition-colors duration-150;
+  }
+  .premium-table tbody tr:hover {
+    @apply bg-primary/[0.02];
+  }
+  .premium-table tbody td {
+    @apply px-4 py-3.5 text-sm;
+  }
+  .premium-table tbody tr:last-child {
+    @apply border-b-0;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    @apply flex flex-wrap gap-3 items-end;
+  }
+  .filter-group {
+    @apply flex flex-col gap-1.5;
+  }
+  .filter-group label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60;
+  }
+  .filter-select {
+    @apply h-9 rounded-lg border border-input bg-background px-3 py-1 text-sm 
+           transition-colors focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/50
+           appearance-none cursor-pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 2rem;
+  }
+
+  /* Status dot + badge */
+  .status-dot {
+    @apply inline-block h-2 w-2 rounded-full mr-1.5 shrink-0;
+  }
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .status-badge-accepted {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200/60;
+  }
+  .status-badge-cancelled {
+    @apply bg-rose-50 text-rose-700 border border-rose-200/60;
+  }
+  .status-badge-pending {
+    @apply bg-amber-50 text-amber-700 border border-amber-200/60;
+  }
+  .status-badge-inquiry {
+    @apply bg-blue-50 text-blue-700 border border-blue-200/60;
+  }
+  .status-badge-completed {
+    @apply bg-slate-50 text-slate-600 border border-slate-200/60;
+  }
+  .status-badge-default {
+    @apply bg-gray-50 text-gray-600 border border-gray-200/60;
+  }
+
+  /* Metric card */
+  .metric-card {
+    @apply relative overflow-hidden rounded-xl border border-border/50 bg-card p-5;
+    box-shadow: var(--shadow-card);
+  }
+  .metric-card:hover {
+    box-shadow: var(--shadow-elevated);
+  }
+  .metric-card .metric-value {
+    @apply text-2xl font-bold tracking-tight;
+  }
+  .metric-card .metric-label {
+    @apply text-xs font-medium text-muted-foreground;
+  }
+  .metric-card .metric-sub {
+    @apply text-[11px] text-muted-foreground/60 mt-0.5;
+  }
+  .metric-card .metric-icon {
+    @apply flex h-9 w-9 items-center justify-center rounded-lg;
+  }
+
+  /* Channel badge */
+  .channel-badge {
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium;
+  }
+  .channel-airbnb {
+    @apply bg-rose-50 text-rose-600;
+  }
+  .channel-vrbo {
+    @apply bg-blue-50 text-blue-600;
+  }
+  .channel-direct {
+    @apply bg-violet-50 text-violet-600;
+  }
+  .channel-booking {
+    @apply bg-indigo-50 text-indigo-600;
+  }
+  .channel-default {
+    @apply bg-gray-50 text-gray-600;
+  }
+}
+
 @layer utilities {
-  /* Subtle page background pattern */
-  .bg-grid {
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 40L40 0M-10 10L10-10M30 50L50 30' stroke='%23e5e7eb' stroke-width='0.5' opacity='0.4'/%3E%3C/svg%3E");
+  /* Subtle dot grid background for main content area */
+  .bg-dots {
+    background-image: radial-gradient(circle, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   /* Glassmorphism */
   .glass {
     @apply bg-white/70 backdrop-blur-xl border border-white/20;
-  }
-
-  /* Smooth scroll */
-  .scroll-smooth {
-    scroll-behavior: smooth;
   }
 
   /* Gradient text */
@@ -122,6 +248,11 @@
   .stat-accent-rose::before { @apply bg-rose-500; }
   .stat-accent-cyan::before { @apply bg-cyan-500; }
   .stat-accent-indigo::before { @apply bg-indigo-500; }
+
+  /* Section divider */
+  .section-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-border to-transparent;
+  }
 }
 
 /* Custom scrollbar */
@@ -156,6 +287,10 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
 
 .animate-fade-in {
   animation: fade-in 0.4s ease-out forwards;
@@ -170,4 +305,7 @@
   background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.05), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }

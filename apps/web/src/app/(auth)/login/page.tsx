@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth-store";
+import { Loader2, AlertCircle } from "lucide-react";
 
 interface LoginResponse {
   success: boolean;
@@ -57,22 +58,23 @@ export default function LoginPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold">Sign in</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Welcome back</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Enter your credentials to access your account
+          Sign in to your HostIQ account
         </p>
       </div>
 
       {error && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <div className="flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2.5 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
           Email
         </label>
         <Input
@@ -83,13 +85,22 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
+          className="h-10"
         />
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            Password
+          </label>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-primary/80 hover:text-primary transition-colors"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Input
           id="password"
           type="password"
@@ -97,26 +108,25 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="current-password"
+          className="h-10"
         />
       </div>
 
-      <div className="flex items-center justify-between text-sm">
-        <Link
-          href="/forgot-password"
-          className="text-primary hover:underline"
-        >
-          Forgot password?
-        </Link>
-      </div>
-
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Signing in..." : "Sign in"}
+      <Button type="submit" className="w-full h-10" disabled={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          "Sign in"
+        )}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-primary hover:underline">
-          Register
+        <Link href="/register" className="text-primary font-medium hover:underline">
+          Create account
         </Link>
       </p>
     </form>

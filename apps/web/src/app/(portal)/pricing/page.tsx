@@ -137,9 +137,9 @@ export default function PricingPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Pricing</h1>
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Pricing</h1>
+          <p>Loading...</p>
         </div>
       </div>
     );
@@ -147,9 +147,9 @@ export default function PricingPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Pricing</h1>
-        <p className="text-muted-foreground">Manage pricing and availability</p>
+      <div className="page-header">
+        <h1>Pricing</h1>
+        <p>Manage pricing and availability across your properties</p>
       </div>
 
       {/* Property Selector */}
@@ -158,7 +158,7 @@ export default function PricingPage() {
           <div className="max-w-sm">
             <label className="text-sm font-medium mb-1 block">Property</label>
             <select
-              className="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              className="filter-select w-full"
               value={selectedPropertyId}
               onChange={(e) => setSelectedPropertyId(e.target.value)}
             >

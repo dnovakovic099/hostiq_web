@@ -39,7 +39,7 @@ export default function PortalLayout({
       <Sidebar />
       <div className="lg:pl-[260px]">
         <Topbar />
-        <main className="p-4 lg:p-6 xl:p-8 animate-fade-in">{children}</main>
+        <main className="p-4 lg:p-6 xl:p-8 animate-fade-in bg-dots min-h-[calc(100vh-3.5rem)]">{children}</main>
       </div>
     </div>
   );

@@ -144,9 +144,9 @@ export default function MessagesPage() {
 
   return (
     <div className="space-y-4 h-[calc(100vh-12rem)]">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Messages</h1>
-        <p className="text-muted-foreground">Manage guest conversations</p>
+      <div className="page-header mb-0">
+        <h1>Messages</h1>
+        <p>Manage guest conversations across all properties</p>
       </div>
 
       <div className="flex gap-4 h-full min-h-0">
@@ -156,7 +156,7 @@ export default function MessagesPage() {
             <CardTitle>Conversations</CardTitle>
             <div className="flex flex-col gap-2 mt-2">
               <select
-                className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.propertyId}
                 onChange={(e) => setFilters((f) => ({ ...f, propertyId: e.target.value }))}
               >
@@ -168,7 +168,7 @@ export default function MessagesPage() {
                 ))}
               </select>
               <select
-                className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                className="filter-select w-full"
                 value={filters.status}
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, status: e.target.value as ThreadStatus | "" }))
