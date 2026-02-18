@@ -260,8 +260,18 @@ export default function RevenuePage() {
       <div className="space-y-6">
         <div className="page-header">
           <h1>Revenue</h1>
-          <p>Loading...</p>
+          <p>Revenue analytics and performance tracking</p>
         </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid gap-4 md:grid-cols-4 mb-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-20 rounded-lg bg-muted/40 skeleton" />
+              ))}
+            </div>
+            <div className="h-48 rounded-lg bg-muted/30 skeleton" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -417,7 +427,10 @@ export default function RevenuePage() {
                 );
               })}
               {computed.byChannel.length === 0 && (
-                <p className="text-muted-foreground text-sm">No channel data yet</p>
+                <div className="py-12 text-center">
+                  <DollarSign className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">No channel data yet</p>
+                </div>
               )}
             </div>
           </CardContent>

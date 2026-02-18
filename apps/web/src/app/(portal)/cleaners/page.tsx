@@ -166,7 +166,11 @@ export default function CleanersPage() {
         </div>
         <Card>
           <CardContent className="pt-6">
-            <p className="text-muted-foreground">Loading...</p>
+            <div className="space-y-4">
+              <div className="h-5 w-40 rounded bg-muted/60 skeleton" />
+              <div className="h-4 w-full rounded bg-muted/40 skeleton" />
+              <div className="h-48 rounded-lg bg-muted/30 skeleton" />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -199,7 +203,10 @@ export default function CleanersPage() {
         </CardHeader>
         <CardContent>
           {upcomingCleanings.length === 0 ? (
-            <p className="text-muted-foreground py-4">No upcoming cleanings scheduled.</p>
+            <div className="py-12 text-center">
+              <SprayCan className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No upcoming cleanings scheduled</p>
+            </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {upcomingCleanings.map((task) => (
@@ -239,7 +246,10 @@ export default function CleanersPage() {
           </CardHeader>
           <CardContent>
             {cleaners.length === 0 ? (
-              <p className="text-muted-foreground py-4">No cleaners found.</p>
+              <div className="py-12 text-center">
+                <SprayCan className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No cleaners found</p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="premium-table">

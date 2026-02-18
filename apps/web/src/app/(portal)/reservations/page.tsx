@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,11 @@ import {
   ArrowUpDown,
   CalendarDays,
   Filter,
+  BedDouble,
+  DollarSign,
+  CalendarClock,
+  CircleCheckBig,
+  Sparkles,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -146,6 +151,21 @@ export default function ReservationsPage() {
     pageSize: 20,
   });
 
+  const hasActiveFilters =
+    Boolean(filters.propertyId) ||
+    Boolean(filters.status) ||
+    Boolean(filters.startDate) ||
+    Boolean(filters.endDate) ||
+    Boolean(filters.search);
+
+  const activeFilterCount = [
+    filters.propertyId,
+    filters.status,
+    filters.startDate,
+    filters.endDate,
+    filters.search,
+  ].filter(Boolean).length;
+
   const fetchReservations = useCallback(async () => {
     try {
       setError(null);
@@ -210,12 +230,50 @@ export default function ReservationsPage() {
     }
   };
 
+  const stats = useMemo(() => {
+    const totalRevenue = reservations.reduce((sum, r) => sum + (r.total ?? 0), 0);
+    const totalNights = reservations.reduce((sum, r) => sum + r.nights, 0);
+    const acceptedCount = reservations.filter((r) => r.status === "ACCEPTED").length;
+    const now = new Date();
+    const upcomingWindow = new Date();
+    upcomingWindow.setDate(now.getDate() + 14);
+    const upcomingCheckIns = reservations.filter((r) => {
+      const checkIn = new Date(r.checkIn);
+      return checkIn >= now && checkIn <= upcomingWindow;
+    }).length;
+
+    return {
+      totalRevenue,
+      avgNights: reservations.length ? totalNights / reservations.length : 0,
+      acceptedCount,
+      upcomingCheckIns,
+    };
+  }, [reservations]);
+
+  const resetFilters = () => {
+    setFilters((f) => ({
+      ...f,
+      propertyId: "",
+      status: "",
+      startDate: "",
+      endDate: "",
+      search: "",
+      page: 1,
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div className="page-header mb-0">
-          <h1>Reservations</h1>
+          <h1 className="flex items-center gap-2.5">
+            Reservations
+            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary">
+              <Sparkles className="h-3 w-3" />
+              Live
+            </span>
+          </h1>
           <p>
             Manage and track all guest reservations across your properties
           </p>
@@ -250,14 +308,88 @@ export default function ReservationsPage() {
         </div>
       </div>
 
+      <Card className="relative overflow-hidden border-primary/10 bg-gradient-to-br from-primary/[0.06] via-card to-violet-500/[0.05]">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/[0.08] blur-3xl" />
+        <CardContent className="relative py-5">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                Showing
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {reservations.length}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {pagination?.total
+                  ? `of ${pagination.total.toLocaleString()} total reservations`
+                  : "current page"}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                Revenue in view
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {formatCurrency(stats.totalRevenue)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                <DollarSign className="h-3.5 w-3.5" />
+                Summed from visible rows
+              </p>
+            </div>
+            <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                Average stay
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {stats.avgNights.toFixed(1)} nights
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                <BedDouble className="h-3.5 w-3.5" />
+                Based on visible reservations
+              </p>
+            </div>
+            <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
+              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+                Next 14 days
+              </p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">
+                {stats.upcomingCheckIns} check-ins
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                <CalendarClock className="h-3.5 w-3.5" />
+                {stats.acceptedCount} currently accepted
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Filters */}
-      <Card>
+      <Card className="border-border/40">
         <CardContent className="pt-5 pb-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground/50" />
-            <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground/50">
-              Filters
-            </span>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Filter className="h-3.5 w-3.5 text-muted-foreground/50" />
+              <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground/50">
+                Filters
+              </span>
+              {hasActiveFilters && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  <CircleCheckBig className="h-3 w-3" />
+                  {activeFilterCount} active
+                </span>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2.5 text-xs"
+              disabled={!hasActiveFilters}
+              onClick={resetFilters}
+            >
+              Clear all
+            </Button>
           </div>
           <div className="filter-bar">
             <div className="filter-group flex-1 min-w-[180px]">
@@ -379,7 +511,7 @@ export default function ReservationsPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="border-border/40 overflow-hidden">
+            <Card className="border-border/40 overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="premium-table">
                   <thead>

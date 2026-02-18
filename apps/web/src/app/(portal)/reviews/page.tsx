@@ -224,10 +224,23 @@ export default function ReviewsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Reviews</h1>
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Reviews</h1>
+          <p>Manage guest reviews and AI-powered responses</p>
         </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="h-5 w-32 rounded bg-muted/60 skeleton" />
+              <div className="grid gap-4 md:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-16 rounded-lg bg-muted/40 skeleton" />
+                ))}
+              </div>
+              <div className="h-48 rounded-lg bg-muted/30 skeleton" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -451,9 +464,10 @@ export default function ReviewsPage() {
               </div>
             ))}
             {filteredReviews.length === 0 && (
-              <p className="text-muted-foreground py-8 text-center">
-                No reviews match your filters.
-              </p>
+              <div className="py-12 text-center">
+                <Star className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No reviews match your filters</p>
+              </div>
             )}
           </div>
         </CardContent>

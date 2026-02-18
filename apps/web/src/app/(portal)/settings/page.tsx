@@ -151,8 +151,20 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Settings</h1>
+          <p>Manage your account and preferences</p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="h-5 w-32 rounded bg-muted/60 skeleton" />
+              <div className="h-10 w-full rounded-lg bg-muted/40 skeleton" />
+              <div className="h-10 w-full rounded-lg bg-muted/40 skeleton" />
+              <div className="h-10 w-3/4 rounded-lg bg-muted/40 skeleton" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

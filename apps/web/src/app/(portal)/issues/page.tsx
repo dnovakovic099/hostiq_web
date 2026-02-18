@@ -317,13 +317,23 @@ export default function IssuesPage() {
       {activeTab === "list" ? (
         <>
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="h-5 w-32 rounded bg-muted/60 skeleton" />
+                  <div className="h-4 w-full rounded bg-muted/40 skeleton" />
+                  <div className="h-4 w-3/4 rounded bg-muted/40 skeleton" />
+                  <div className="h-64 rounded-lg bg-muted/30 skeleton" />
+                </div>
+              </CardContent>
+            </Card>
           ) : error ? (
             <p className="text-destructive">{error}</p>
           ) : issues.length === 0 ? (
             <Card>
-              <CardContent className="py-12 text-center text-muted-foreground">
-                No issues found. Adjust your filters.
+              <CardContent className="py-12 text-center">
+                <AlertTriangle className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No issues found. Adjust your filters.</p>
               </CardContent>
             </Card>
           ) : (
@@ -478,9 +488,17 @@ export default function IssuesPage() {
           </CardHeader>
           <CardContent>
             {!analytics ? (
-              <p className="text-muted-foreground">Loading analytics...</p>
+              <div className="space-y-4 py-4">
+                <div className="h-4 w-40 rounded bg-muted/60 skeleton" />
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-6 rounded bg-muted/40 skeleton" />
+                ))}
+              </div>
             ) : analytics.byCategory.length === 0 ? (
-              <p className="text-muted-foreground">No data yet</p>
+              <div className="py-12 text-center">
+                <BarChart3 className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No data yet</p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {analytics.byCategory.map((item) => {

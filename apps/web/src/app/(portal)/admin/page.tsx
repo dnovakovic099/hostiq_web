@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Shield, Users, Zap, RefreshCw, FileText } from "lucide-react";
+import { Users, Zap, RefreshCw, FileText } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth-store";
 
@@ -117,8 +117,8 @@ export default function AdminPage() {
   if (!isAdmin) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
+        <div className="page-header">
+          <h1>Admin</h1>
           <p className="text-destructive mt-2">Access denied. Admin or Internal Ops role required.</p>
         </div>
       </div>
@@ -128,8 +128,19 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Admin</h1>
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Admin</h1>
+          <p>User management, integrations, and audit log</p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="h-5 w-48 rounded bg-muted/60 skeleton" />
+              <div className="h-4 w-full rounded bg-muted/40 skeleton" />
+              <div className="h-4 w-3/4 rounded bg-muted/40 skeleton" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -155,7 +166,10 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             {users.length === 0 ? (
-              <p className="text-muted-foreground py-4">No users found</p>
+              <div className="py-12 text-center">
+                <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No users found</p>
+              </div>
             ) : (
               <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
                 <table className="premium-table">
@@ -267,7 +281,10 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           {integrations.length === 0 ? (
-            <p className="text-muted-foreground py-4">No integration data</p>
+            <div className="py-12 text-center">
+              <Zap className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No integration data</p>
+            </div>
           ) : (
             <div className="space-y-4">
               {integrations.map((int) => (
@@ -332,7 +349,10 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           {auditLog.length === 0 ? (
-            <p className="text-muted-foreground py-4">No audit entries</p>
+            <div className="py-12 text-center">
+              <FileText className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No audit entries</p>
+            </div>
           ) : (
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="premium-table">

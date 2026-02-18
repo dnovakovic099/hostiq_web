@@ -139,8 +139,17 @@ export default function PricingPage() {
       <div className="space-y-6">
         <div className="page-header">
           <h1>Pricing</h1>
-          <p>Loading...</p>
+          <p>Manage pricing and availability across your properties</p>
         </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="h-5 w-32 rounded bg-muted/60 skeleton" />
+              <div className="h-10 w-48 rounded-lg bg-muted/40 skeleton" />
+              <div className="h-40 rounded-lg bg-muted/30 skeleton" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

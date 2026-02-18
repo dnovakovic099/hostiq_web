@@ -155,19 +155,28 @@ export default function MarketingPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Marketing</h1>
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="page-header">
+          <h1>Marketing</h1>
+          <p>Listing health audit and optimization tips</p>
         </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-40 rounded-xl bg-muted/40 skeleton" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Marketing</h1>
-        <p className="text-muted-foreground">Listing health audit and optimization tips</p>
+      <div className="page-header">
+        <h1>Marketing</h1>
+        <p>Listing health audit and optimization tips</p>
       </div>
 
       {/* Listing Health Cards */}

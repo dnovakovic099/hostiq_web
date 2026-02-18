@@ -192,11 +192,24 @@ export default function MessagesPage() {
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto p-0">
             {loading ? (
-              <p className="p-4 text-muted-foreground text-sm">Loading...</p>
+              <div className="p-4 space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex gap-3 py-3">
+                    <div className="h-10 w-10 rounded-full bg-muted/60 skeleton shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-32 rounded bg-muted/60 skeleton" />
+                      <div className="h-3 w-full rounded bg-muted/40 skeleton" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : error ? (
               <p className="p-4 text-destructive text-sm">{error}</p>
             ) : threads.length === 0 ? (
-              <p className="p-4 text-muted-foreground text-sm">No conversations found</p>
+              <div className="py-12 text-center">
+                <Send className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No conversations found</p>
+              </div>
             ) : (
               <div className="divide-y">
                 {threads.map((t) => (
@@ -243,11 +256,19 @@ export default function MessagesPage() {
         {/* Conversation - 2/3 */}
         <Card className="flex-1 flex flex-col overflow-hidden min-w-0">
           {!selectedThread ? (
-            <CardContent className="flex-1 flex items-center justify-center text-muted-foreground">
-              Select a conversation
+            <CardContent className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <Send className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Select a conversation</p>
+              </div>
             </CardContent>
           ) : threadLoading ? (
-            <CardContent className="flex-1 flex items-center justify-center">Loading...</CardContent>
+            <CardContent className="flex-1 flex items-center justify-center">
+              <div className="space-y-3">
+                <div className="h-4 w-48 rounded bg-muted/60 skeleton mx-auto" />
+                <div className="h-32 rounded-lg bg-muted/30 skeleton w-64 mx-auto" />
+              </div>
+            </CardContent>
           ) : (
             <>
               <CardHeader className="border-b">
@@ -258,7 +279,10 @@ export default function MessagesPage() {
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
                 {selectedThread.messages.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No messages yet</p>
+                  <div className="py-8 text-center">
+                    <Send className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No messages yet</p>
+                  </div>
                 ) : (
                   selectedThread.messages.map((msg) => {
                     const isGuest = msg.senderType === "GUEST";
