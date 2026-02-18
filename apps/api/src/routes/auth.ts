@@ -21,6 +21,7 @@ const registerSchema = z.object({
   password: z.string().min(8),
   name: z.string().min(1),
   phone: z.string().optional(),
+  listingUrl: z.string().url().optional(),
 });
 
 auth.post("/register", async (c) => {
@@ -33,7 +34,7 @@ auth.post("/register", async (c) => {
     );
   }
 
-  const { email, password, name, phone } = parsed.data;
+  const { email, password, name, phone, listingUrl } = parsed.data;
 
   // Check if user already exists
   const existing = await prisma.user.findUnique({ where: { email } });
@@ -53,6 +54,24 @@ auth.post("/register", async (c) => {
     },
   });
 
+  // If a listing URL was provided, parse it and create an initial property record
+  if (listingUrl) {
+    let airbnbId: string | undefined;
+    const airbnbMatch = listingUrl.match(/airbnb\.com\/rooms\/(\d+)/);
+    if (airbnbMatch) airbnbId = airbnbMatch[1];
+
+    const channel = listingUrl.includes("vrbo.com") ? "vrbo" : listingUrl.includes("airbnb.com") ? "airbnb" : "other";
+
+    await prisma.property.create({
+      data: {
+        ownerId: user.id,
+        name: "My Property",
+        airbnbId: airbnbId ?? null,
+        settingsJson: { listingUrl, channel },
+      },
+    });
+  }
+
   const token = signToken({
     userId: user.id,
     email: user.email,
@@ -60,7 +79,7 @@ auth.post("/register", async (c) => {
     name: user.name,
   });
 
-  await logAudit(user.id, "register", "user", user.id, { email }, c.req.header("x-forwarded-for"));
+  await logAudit(user.id, "register", "user", user.id, { email, listingUrl }, c.req.header("x-forwarded-for"));
 
   return c.json({
     success: true,

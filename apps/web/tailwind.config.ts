@@ -64,7 +64,15 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }: { addUtilities: (utilities: Record<string, Record<string, string>>) => void }) {
+      addUtilities({
+        ".bg-gradient-radial": {
+          "background-image": "radial-gradient(var(--tw-gradient-stops))",
+        },
+      });
+    },
+  ],
 };
 
 export default config;

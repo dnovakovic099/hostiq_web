@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [listingUrl, setListingUrl] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +38,7 @@ export default function RegisterPage() {
         name,
         email,
         phone: phone || undefined,
+        listingUrl: listingUrl || undefined,
         password,
       });
 
@@ -116,6 +118,21 @@ export default function RegisterPage() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           autoComplete="tel"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="listingUrl" className="text-sm font-medium">
+          Airbnb or VRBO listing URL{" "}
+          <span className="text-muted-foreground">(optional)</span>
+        </label>
+        <Input
+          id="listingUrl"
+          type="url"
+          placeholder="https://www.airbnb.com/rooms/... or https://www.vrbo.com/..."
+          value={listingUrl}
+          onChange={(e) => setListingUrl(e.target.value)}
+          autoComplete="off"
         />
       </div>
 
