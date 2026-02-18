@@ -131,6 +131,19 @@ function formatDate(iso: string) {
   });
 }
 
+function startOfDay(value: Date) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function formatDayKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function ReservationsPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -140,6 +153,12 @@ export default function ReservationsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<Reservation | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const date = new Date();
+    date.setDate(1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  });
 
   const [filters, setFilters] = useState({
     propertyId: "",
@@ -176,7 +195,7 @@ export default function ReservationsPage() {
       if (filters.endDate) params.set("endDate", filters.endDate);
       if (filters.search) params.set("search", filters.search);
       params.set("page", String(filters.page));
-      params.set("pageSize", String(filters.pageSize));
+      params.set("pageSize", String(viewMode === "calendar" ? 200 : filters.pageSize));
 
       const res = await api.get<{
         success: boolean;
@@ -189,7 +208,7 @@ export default function ReservationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, viewMode]);
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -261,6 +280,39 @@ export default function ReservationsPage() {
       page: 1,
     }));
   };
+
+  const calendarData = useMemo(() => {
+    const firstOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+    const start = new Date(firstOfMonth);
+    start.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+    start.setHours(0, 0, 0, 0);
+
+    const days: Date[] = [];
+    for (let i = 0; i < 42; i++) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      days.push(day);
+    }
+
+    const reservationsByDay: Record<string, Reservation[]> = {};
+    for (const reservation of reservations) {
+      const checkIn = startOfDay(new Date(reservation.checkIn));
+      const checkOut = startOfDay(new Date(reservation.checkOut));
+      if (Number.isNaN(checkIn.getTime()) || Number.isNaN(checkOut.getTime())) continue;
+
+      const cursor = new Date(checkIn);
+      // Render reservation through the night before checkout.
+      while (cursor < checkOut) {
+        const key = formatDayKey(cursor);
+        if (!reservationsByDay[key]) reservationsByDay[key] = [];
+        reservationsByDay[key].push(reservation);
+        cursor.setDate(cursor.getDate() + 1);
+      }
+    }
+
+    const todayKey = formatDayKey(new Date());
+    return { days, reservationsByDay, todayKey };
+  }, [calendarMonth, reservations]);
 
   return (
     <div className="space-y-6">
@@ -788,15 +840,152 @@ export default function ReservationsPage() {
           )}
         </>
       ) : (
-        <Card className="border-border/40">
-          <CardContent className="py-16 text-center">
-            <Calendar className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm font-medium text-muted-foreground">
-              Calendar view coming soon
-            </p>
-            <p className="text-xs text-muted-foreground/60 mt-1">
-              Switch to List view for full reservation data
-            </p>
+        <Card className="border-border/40 overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex flex-col gap-3 border-b border-border/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold">
+                  {calendarMonth.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {reservations.length} reservation{reservations.length === 1 ? "" : "s"} loaded
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2.5"
+                  onClick={() =>
+                    setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+                  }
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2.5 text-xs"
+                  onClick={() => {
+                    const today = new Date();
+                    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+                  }}
+                >
+                  Today
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2.5"
+                  onClick={() =>
+                    setCalendarMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+                  }
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="grid grid-cols-7 gap-px bg-border/30">
+                {Array.from({ length: 42 }).map((_, i) => (
+                  <div key={i} className="h-28 bg-card p-2">
+                    <div className="skeleton h-3 w-8" />
+                    <div className="mt-2 space-y-1.5">
+                      <div className="skeleton h-4 w-full" />
+                      <div className="skeleton h-4 w-4/5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <div className="min-w-[980px]">
+                  <div className="grid grid-cols-7 border-b border-border/40 bg-muted/30">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((weekday) => (
+                      <div
+                        key={weekday}
+                        className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+                      >
+                        {weekday}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-px bg-border/30">
+                    {calendarData.days.map((day) => {
+                      const dayKey = formatDayKey(day);
+                      const dayReservations = calendarData.reservationsByDay[dayKey] ?? [];
+                      const inCurrentMonth = day.getMonth() === calendarMonth.getMonth();
+                      const isToday = dayKey === calendarData.todayKey;
+
+                      return (
+                        <div
+                          key={dayKey}
+                          className={cn(
+                            "min-h-[128px] bg-card p-2.5",
+                            !inCurrentMonth && "bg-muted/20"
+                          )}
+                        >
+                          <div className="mb-2 flex items-center justify-between">
+                            <span
+                              className={cn(
+                                "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
+                                inCurrentMonth ? "text-foreground" : "text-muted-foreground/60",
+                                isToday && "bg-primary text-primary-foreground"
+                              )}
+                            >
+                              {day.getDate()}
+                            </span>
+                            {dayReservations.length > 0 && (
+                              <span className="text-[10px] text-muted-foreground">
+                                {dayReservations.length}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="space-y-1.5">
+                            {dayReservations.slice(0, 3).map((reservation) => (
+                              <button
+                                key={`${dayKey}-${reservation.id}`}
+                                className={cn(
+                                  "w-full rounded-md px-2 py-1 text-left text-[11px] font-medium transition-colors",
+                                  reservation.status === "ACCEPTED" && "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20",
+                                  reservation.status === "CANCELLED" && "bg-rose-500/10 text-rose-700 hover:bg-rose-500/20",
+                                  reservation.status !== "ACCEPTED" &&
+                                    reservation.status !== "CANCELLED" &&
+                                    "bg-primary/10 text-primary hover:bg-primary/20"
+                                )}
+                                onClick={() => {
+                                  setViewMode("list");
+                                  toggleExpand(reservation.id);
+                                }}
+                                title={`${reservation.guest?.name ?? "Guest"} • ${reservation.property.name}`}
+                              >
+                                <span className="block truncate">
+                                  {reservation.guest?.name ?? "Guest"}
+                                </span>
+                                <span className="block truncate text-[10px] opacity-80">
+                                  {reservation.property.name}
+                                </span>
+                              </button>
+                            ))}
+                            {dayReservations.length > 3 && (
+                              <p className="px-2 text-[10px] font-medium text-muted-foreground">
+                                +{dayReservations.length - 3} more
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

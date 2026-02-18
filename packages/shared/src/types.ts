@@ -69,8 +69,11 @@ export interface HostifyThread {
 export interface HostifyMessage {
   id: number;
   thread_id?: number;
+  from?: string;
   sender?: string;
+  message?: string;
   body?: string;
+  created?: string;
   created_at?: string;
   [key: string]: unknown;
 }

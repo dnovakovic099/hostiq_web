@@ -1,0 +1,1158 @@
+{
+  "startedAt": "2026-02-16T00:06:39.308Z",
+  "baseUrl": "http://localhost:3000",
+  "apiUrl": "http://localhost:3001",
+  "routes": [
+    {
+      "route": "/",
+      "tag": "public",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 943,
+      "screenshot": "public-.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/login",
+      "tag": "public",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 937,
+      "screenshot": "public-login.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/login",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/register",
+      "tag": "public",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 929,
+      "screenshot": "public-register.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/register",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/forgot-password",
+      "tag": "public",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 955,
+      "screenshot": "public-forgot-password.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/forgot-password",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/dashboard",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 923,
+      "screenshot": "portal-dashboard.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/dashboard",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/reservations",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 925,
+      "screenshot": "portal-reservations.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/reservations",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/messages",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 929,
+      "screenshot": "portal-messages.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/messages",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/cleaners",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 918,
+      "screenshot": "portal-cleaners.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/cleaners",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/pricing",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 922,
+      "screenshot": "portal-pricing.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/pricing",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/revenue",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 929,
+      "screenshot": "portal-revenue.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/revenue",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/marketing",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 920,
+      "screenshot": "portal-marketing.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/marketing",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/reviews",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 919,
+      "screenshot": "portal-reviews.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/reviews",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/issues",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 932,
+      "screenshot": "portal-issues.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/issues",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/settings",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 930,
+      "screenshot": "portal-settings.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/settings",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/admin",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 927,
+      "screenshot": "portal-admin.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/admin",
+      "hasErrorBanner": false
+    },
+    {
+      "route": "/tickets",
+      "tag": "portal",
+      "status": "ok",
+      "httpStatus": 200,
+      "errMessage": null,
+      "durationMs": 942,
+      "screenshot": "portal-tickets.png",
+      "title": "HostIQ - Smart Property Management",
+      "finalUrl": "http://localhost:3000/tickets",
+      "hasErrorBanner": false
+    }
+  ],
+  "jsErrors": [],
+  "consoleErrors": [
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "networkFailures": [
+    {
+      "url": "http://localhost:3000/",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200400204",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200400204",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200401163",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200401163",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/login/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200402080",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200402080",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/register",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200403028",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200403028",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/forgot-password",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200404362",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200404362",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/login",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(auth)/login/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200405295",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200405295",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/dashboard/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200406215",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200406215",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/dashboard",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/dashboard/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200407143",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200407143",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reservations",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/reservations/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200408073",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200408073",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/messages",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200409008",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200409008",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/cleaners",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/cleaners/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200409929",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200409929",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/pricing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200410859",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200410859",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/revenue",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200411781",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200411781",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/marketing",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200412716",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200412716",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/reviews",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200413640",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200413640",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/issues",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200414574",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200414574",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/settings",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/settings/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200415509",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200415509",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/admin",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/admin/page.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "requestUrl": "http://localhost:3000/_next/static/css/app/layout.css?v=1771200416449",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/main-app.js?v=1771200416449",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://localhost:3000/tickets",
+      "requestUrl": "http://localhost:3000/_next/static/chunks/app/(portal)/layout.js",
+      "method": "GET",
+      "reason": "net::ERR_ABORTED"
+    }
+  ],
+  "buttonInteractions": [],
+  "apiSmoke": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200,
+      "ok": true,
+      "durationMs": 1,
+      "hasData": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard/stats",
+      "status": 200,
+      "ok": true,
+      "durationMs": 13,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/properties",
+      "status": 200,
+      "ok": true,
+      "durationMs": 12,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reservations",
+      "status": 200,
+      "ok": true,
+      "durationMs": 3,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/messages",
+      "status": 200,
+      "ok": true,
+      "durationMs": 5,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/messages/threads",
+      "status": 200,
+      "ok": true,
+      "durationMs": 5,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/issues",
+      "status": 200,
+      "ok": true,
+      "durationMs": 2,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/cleaning",
+      "status": 200,
+      "ok": true,
+      "durationMs": 1,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/cleaning/schedule",
+      "status": 200,
+      "ok": true,
+      "durationMs": 1,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "status": 200,
+      "ok": true,
+      "durationMs": 1,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/owner-summary",
+      "status": 200,
+      "ok": true,
+      "durationMs": 24,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/performance",
+      "status": 200,
+      "ok": true,
+      "durationMs": 53,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/cleaning",
+      "status": 200,
+      "ok": true,
+      "durationMs": 1,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users",
+      "status": 200,
+      "ok": true,
+      "durationMs": 3,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/integrations/health",
+      "status": 200,
+      "ok": true,
+      "durationMs": 2,
+      "hasData": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit",
+      "status": 200,
+      "ok": true,
+      "durationMs": 2,
+      "hasData": true
+    }
+  ],
+  "summary": {
+    "totalRoutes": 16,
+    "okRoutes": 16,
+    "failedRoutes": 0,
+    "jsErrors": 0,
+    "consoleErrors": 80,
+    "networkFailures": 80,
+    "buttonErrors": 0,
+    "apiTotal": 16,
+    "apiOk": 16,
+    "apiFailed": 0,
+    "loginSuccess": true
+  },
+  "login": {
+    "success": true,
+    "finalUrl": "http://localhost:3000/dashboard",
+    "method": "api_token"
+  },
+  "securityChecks": {
+    "seedEndpointRemoved": true,
+    "seedStatus": 404
+  },
+  "finishedAt": "2026-02-16T00:06:57.405Z"
+}

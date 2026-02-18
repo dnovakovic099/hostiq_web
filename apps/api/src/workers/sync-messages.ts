@@ -16,10 +16,15 @@ function parseDate(val: unknown): Date | null {
 
 function inferSenderType(sender: unknown): SenderType {
   const s = String(sender ?? "").toLowerCase();
+  if (!s) {
+    return "SYSTEM";
+  }
   if (
     s.includes("guest") ||
     s.includes("traveler") ||
     s.includes("booker") ||
+    s.includes("tenant") ||
+    s.includes("renter") ||
     s === "guest"
   ) {
     return "GUEST";
@@ -28,6 +33,8 @@ function inferSenderType(sender: unknown): SenderType {
     s.includes("host") ||
     s.includes("owner") ||
     s.includes("manager") ||
+    s.includes("agent") ||
+    s.includes("staff") ||
     s === "host"
   ) {
     return "HOST";
@@ -40,7 +47,7 @@ function inferSenderType(sender: unknown): SenderType {
   ) {
     return "AUTOMATION";
   }
-  return "GUEST";
+  return "SYSTEM";
 }
 
 export async function syncMessages(): Promise<void> {
@@ -146,23 +153,25 @@ export async function syncMessagesForProperty(
       threadCount++;
 
       const fullThread = await hostify.getThread(raw.id);
-      const messages = (fullThread.messages ?? []) as Array<{
-        id: number;
-        sender?: string;
-        body?: string;
-        message?: string;
-        created_at?: string;
-      }>;
+      const messages = (fullThread.messages ?? []) as Array<Record<string, unknown>>;
 
       for (const msg of messages) {
-        const hostifyMessageId = String(msg.id);
-        const content = (msg.body ?? msg.message ?? "") as string;
-        const createdAt = parseDate(msg.created_at) ?? new Date();
-        const senderType = inferSenderType(msg.sender);
+        const rawId = msg.id;
+        if (rawId == null) continue;
+
+        const hostifyMessageId = String(rawId);
+        const content = String(msg.body ?? msg.message ?? "");
+        const createdAt =
+          parseDate(msg.created ?? msg.created_at ?? msg.createdAt) ?? new Date();
+        const senderType = inferSenderType(msg.from);
 
         await prisma.message.upsert({
           where: { hostifyMessageId },
-          update: {},
+          update: {
+            senderType,
+            content: content || "(empty)",
+            createdAt,
+          },
           create: {
             threadId: thread.id,
             hostifyMessageId,

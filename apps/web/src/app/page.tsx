@@ -2,42 +2,44 @@ import Link from "next/link";
 import {
   BarChart3,
   Bot,
+  Camera,
+  Calculator,
   Calendar,
   MessageSquare,
-  Shield,
+  ShieldAlert,
   Zap,
 } from "lucide-react";
 
 const features = [
   {
-    icon: Calendar,
-    title: "Reservation Management",
-    desc: "Sync reservations in real-time from Hostify with automatic guest tracking.",
+    icon: BarChart3,
+    title: "Automated Pricing",
+    desc: "Dynamic rates powered by your in-house GTO Pricing Tool, so you can replace PriceLabs workflows.",
   },
   {
     icon: Bot,
-    title: "AI-Powered Automation",
-    desc: "Smart review responses, listing audits, and complaint detection via GPT-4.",
+    title: "Guest Communication AI",
+    desc: "Handles around 90% of guest messages and escalates the rest with full conversation context.",
   },
   {
-    icon: MessageSquare,
-    title: "Guest Communication",
-    desc: "Centralized messaging with automated escalation and sentiment analysis.",
+    icon: Calendar,
+    title: "Listing Optimization",
+    desc: "AI suggestions to improve listing performance using market comps and booking trends.",
   },
   {
-    icon: BarChart3,
-    title: "Revenue Analytics",
-    desc: "Real-time revenue tracking, occupancy rates, and performance reports.",
+    icon: ShieldAlert,
+    title: "Issue Resolution",
+    desc: "Detects complaints in real time and helps coordinate vendors until the issue is resolved.",
   },
   {
-    icon: Shield,
-    title: "Issue Management",
-    desc: "Automated issue detection from HostBuddy webhooks with priority routing.",
+    icon: Camera,
+    title: "Marketing Photo Suggestions",
+    desc: "Identifies weak visuals and recommends photo updates based on top performers in your market.",
   },
   {
-    icon: Zap,
-    title: "Cleaner Coordination",
-    desc: "Automated cleaning task creation, assignment, and status tracking.",
+    icon: Calculator,
+    title: "Amenity ROI Calculator",
+    desc: "See expected payback before spending, like hot tub ROI estimates in nights and revenue lift.",
   },
 ];
 
@@ -79,26 +81,32 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold mb-6 border border-indigo-100">
             <Zap className="h-3 w-3" />
-            Powered by AI
+            Built by FullHouse Labs
           </div>
           <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
-            Run your rentals on
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">
-              autopilot
+            Your
+            <span className="mx-2 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">
+              Digital PM
             </span>
+            for modern hosting
+            <br />
+            with AI on autopilot
           </h1>
           <p className="mt-6 text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            HostIQ connects your PMS, automates guest communication, coordinates
-            cleaners, and provides real-time analytics -- so you can manage
-            hundreds of properties with minimal human intervention.
+            The Digital PM packages the exact systems Luxury Lodging uses across
+            150+ units into one SaaS. Built for independent hosts (1-20
+            properties) and small property managers tired of stitching tools
+            together.
+          </p>
+          <p className="mt-3 text-sm text-gray-600 font-medium">
+            7-day free trial. No credit card required.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register"
               className="w-full sm:w-auto px-8 py-3.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-0.5"
             >
-              Start Free Trial
+              Start 7-Day Free Trial
             </Link>
             <Link
               href="/login"
@@ -112,9 +120,9 @@ export default function Home() {
         {/* Stats bar */}
         <div className="max-w-3xl mx-auto mt-20 grid grid-cols-3 gap-4">
           {[
-            { value: "344+", label: "Properties Managed" },
-            { value: "7,000+", label: "Reservations Synced" },
-            { value: "99.5%", label: "Uptime SLA" },
+            { value: "150+", label: "Units Battle-Tested" },
+            { value: "90%", label: "Guest Messages Automated" },
+            { value: "$199", label: "Flat Monthly Plan" },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -132,11 +140,11 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              Everything you need to scale
+              Stop patching together 5 different tools
             </h2>
             <p className="mt-3 text-gray-500 max-w-lg mx-auto">
-              One platform that connects your property management stack and
-              automates the operational overhead.
+              One digital property manager that handles pricing, guest ops,
+              listing updates, and issue workflows end to end.
             </p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -158,21 +166,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section className="py-20 px-6 lg:px-12 border-t border-gray-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            Simple pricing that scales with you
+          </h2>
+          <p className="mt-4 text-gray-500">
+            Start free for 7 days, then choose what fits your business.
+          </p>
+          <div className="mt-8 grid sm:grid-cols-2 gap-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 text-left shadow-soft">
+              <p className="text-sm text-gray-500">Flat Plan</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">$199</p>
+              <p className="text-sm text-gray-500">per month</p>
+            </div>
+            <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-6 text-left shadow-soft">
+              <p className="text-sm text-indigo-700">Performance Plan</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">5%</p>
+              <p className="text-sm text-gray-500">of monthly revenue</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs text-gray-500">
+            No credit card required to start your trial.
+          </p>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-            Ready to put your rentals on autopilot?
+            Ready for a supercharged digital PM?
           </h2>
           <p className="mt-4 text-gray-500">
-            Join property managers who have reduced manual work by 80% while
-            maintaining 4.8+ star ratings.
+            Automate pricing without PriceLabs, keep guest replies moving, and
+            get AI guidance for listings, photos, amenities, and issue
+            resolution in one place.
           </p>
           <Link
             href="/register"
             className="inline-flex mt-8 px-8 py-3.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30"
           >
-            Get Started Free
+            Claim Your Free 7 Days
           </Link>
         </div>
       </section>

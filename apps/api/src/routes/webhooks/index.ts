@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { prisma } from "@hostiq/db";
-import { logAudit } from "../../middleware/audit";
 import crypto from "crypto";
 
 const webhooks = new Hono();
@@ -185,119 +184,37 @@ webhooks.post("/hostbuddy", async (c) => {
     JSON.stringify(payload).slice(0, 300)
   );
 
-  // Attempt to parse and create guest issue
-  try {
-    const category =
-      (payload.category as string) ||
-      (payload.action_item_category as string) ||
-      "Other";
-    const description =
-      (payload.description as string) ||
-      (payload.summary as string) ||
-      (payload.message as string) ||
-      JSON.stringify(payload);
-    const severity = (payload.severity as string) || (payload.priority as string) || "medium";
+  // For now, store-only mode: capture raw payloads for schema discovery.
+  // Parsing and issue creation will be implemented after reviewing real events.
+  await prisma.integrationHealth.upsert({
+    where: { integration: "hostbuddy" },
+    update: {
+      status: "connected",
+      lastSuccessAt: new Date(),
+      consecutiveFailures: 0,
+    },
+    create: {
+      integration: "hostbuddy",
+      status: "connected",
+      lastSuccessAt: new Date(),
+    },
+  });
 
-    // Try to resolve property and reservation from payload
-    const propertyRef =
-      (payload.property_id as string) ||
-      (payload.listing_id as string) ||
-      (payload.property as string);
-    const reservationRef =
-      (payload.reservation_id as string) ||
-      (payload.booking_id as string);
+  await prisma.automationRun.create({
+    data: {
+      eventType: "hostbuddy.webhook_received",
+      eventPayload: {
+        webhook_log_id: log.id,
+        payload_hash: payloadHash,
+      } as any,
+      outcome: "stored_raw",
+      confidence: 1.0,
+    },
+  });
 
-    let propertyId: string | null = null;
-    let reservationId: string | null = null;
-
-    if (propertyRef) {
-      const property = await prisma.property.findFirst({
-        where: {
-          OR: [
-            { hostifyListingId: String(propertyRef) },
-            { id: String(propertyRef) },
-            { name: { contains: String(propertyRef), mode: "insensitive" } },
-          ],
-        },
-      });
-      propertyId = property?.id ?? null;
-    }
-
-    if (reservationRef) {
-      const reservation = await prisma.reservation.findFirst({
-        where: {
-          OR: [
-            { hostifyReservationId: String(reservationRef) },
-            { id: String(reservationRef) },
-          ],
-        },
-      });
-      reservationId = reservation?.id ?? null;
-    }
-
-    // Create guest issue
-    const issue = await prisma.guestIssue.create({
-      data: {
-        propertyId,
-        reservationId,
-        category,
-        description,
-        severity: normalizeSeverity(severity),
-        source: "hostbuddy",
-        hostbuddyPayloadHash: payloadHash,
-        photosUrls: Array.isArray(payload.images)
-          ? (payload.images as string[])
-          : [],
-      },
-    });
-
-    // Mark log as parsed
-    await prisma.hostbuddyWebhookLog.update({
-      where: { id: log.id },
-      data: {
-        parsed: true,
-        propertyId,
-        reservationId,
-        category,
-      },
-    });
-
-    // Log automation run
-    await prisma.automationRun.create({
-      data: {
-        eventType: "hostbuddy.action_item_received",
-        eventPayload: {
-          webhook_log_id: log.id,
-          issue_id: issue.id,
-          category,
-          severity: issue.severity,
-          property_id: propertyId,
-        } as any,
-        outcome: "issue_created",
-        confidence: 1.0,
-      },
-    });
-
-    // Update integration health
-    await prisma.integrationHealth.upsert({
-      where: { integration: "hostbuddy" },
-      update: {
-        status: "connected",
-        lastSuccessAt: new Date(),
-        consecutiveFailures: 0,
-      },
-      create: {
-        integration: "hostbuddy",
-        status: "connected",
-        lastSuccessAt: new Date(),
-      },
-    });
-
-    console.log(`[Webhook:HostBuddy] Created guest issue ${issue.id} (${category}: ${description.slice(0, 100)})`);
-  } catch (err) {
-    console.error("[Webhook:HostBuddy] Error processing action item:", err);
-    // Still return 200 to prevent HostBuddy from retrying
-  }
+  console.log(
+    `[Webhook:HostBuddy] Stored raw payload ${payloadHash} in log ${log.id} (parsing deferred)`
+  );
 
   return c.json({ success: true });
 });
@@ -335,13 +252,5 @@ webhooks.get("/status", async (c) => {
     },
   });
 });
-
-function normalizeSeverity(s: string): string {
-  const lower = s.toLowerCase();
-  if (["critical", "urgent", "emergency"].includes(lower)) return "critical";
-  if (["high", "important"].includes(lower)) return "high";
-  if (["low", "minor"].includes(lower)) return "low";
-  return "medium";
-}
 
 export default webhooks;
