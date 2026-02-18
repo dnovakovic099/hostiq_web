@@ -108,7 +108,7 @@ export default function PlansPage() {
               Zero surprises.
             </span>
           </h1>
-          <p className="text-lg text-white/45 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
             Start with a 7-day free trial. No credit card. Full access. 
             Then choose how you want to pay.
           </p>
@@ -127,14 +127,14 @@ export default function PlansPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Flat Plan</p>
-                  <p className="text-xs text-white/35">Predictable costs</p>
+                  <p className="text-xs text-white/60">Predictable costs</p>
                 </div>
               </div>
               <div className="flex items-end gap-1.5 mb-3">
                 <span className="text-6xl font-black text-white">$199</span>
-                <span className="text-white/40 pb-2">/mo</span>
+                <span className="text-white/65 pb-2">/mo</span>
               </div>
-              <p className="text-sm text-white/45 leading-relaxed">
+              <p className="text-sm text-white/70 leading-relaxed">
                 One flat fee. Up to 20 properties. Everything included. Best if you want cost certainty.
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function PlansPage() {
               >
                 Start 7-Day Free Trial
               </Link>
-              <p className="mt-3 text-center text-xs text-white/25">No credit card required</p>
+              <p className="mt-3 text-center text-xs text-white/72">No credit card required</p>
             </div>
           </div>
 
@@ -186,14 +186,14 @@ export default function PlansPage() {
                       Most Popular
                     </span>
                   </div>
-                  <p className="text-xs text-white/35">Aligned incentives</p>
+                  <p className="text-xs text-white/60">Aligned incentives</p>
                 </div>
               </div>
               <div className="flex items-end gap-1.5 mb-3">
                 <span className="text-6xl font-black text-white">5%</span>
-                <span className="text-white/40 pb-2">of revenue</span>
+                <span className="text-white/65 pb-2">of revenue</span>
               </div>
-              <p className="text-sm text-white/45 leading-relaxed">
+              <p className="text-sm text-white/70 leading-relaxed">
                 Pay proportionally to what you earn. Scale to unlimited properties with no ceiling.
               </p>
             </div>
@@ -224,7 +224,7 @@ export default function PlansPage() {
               >
                 Start 7-Day Free Trial
               </Link>
-              <p className="mt-3 text-center text-xs text-white/25">No credit card required</p>
+              <p className="mt-3 text-center text-xs text-white/72">No credit card required</p>
             </div>
           </div>
         </div>
@@ -238,25 +238,25 @@ export default function PlansPage() {
           <div className="rounded-2xl border border-white/[0.08] overflow-hidden">
             {/* Table header */}
             <div className="grid grid-cols-3 bg-white/[0.03] border-b border-white/[0.08]">
-              <div className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-white/30">
+              <div className="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-white/55">
                 Feature
               </div>
-              <div className="px-6 py-4 text-center text-xs font-semibold text-white/50">
+              <div className="px-6 py-4 text-center text-xs font-semibold text-white/72">
                 Flat Plan<br />
                 <span className="text-lg font-black text-white normal-case tracking-normal">$199</span>
-                <span className="text-white/30 text-xs">/mo</span>
+                <span className="text-white/55 text-xs">/mo</span>
               </div>
               <div className="px-6 py-4 text-center text-xs font-semibold text-indigo-400">
                 Performance Plan<br />
                 <span className="text-lg font-black text-white normal-case tracking-normal">5%</span>
-                <span className="text-white/30 text-xs"> revenue</span>
+                <span className="text-white/55 text-xs"> revenue</span>
               </div>
             </div>
 
             {Object.entries(groupedRows).map(([category, rows]) => (
               <div key={category}>
                 <div className="px-6 py-2.5 bg-white/[0.015] border-t border-white/[0.06]">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/72">
                     {category}
                   </p>
                 </div>
@@ -317,7 +317,7 @@ export default function PlansPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-white">{t.name}</p>
-                    <p className="text-xs text-white/35 mt-0.5">{t.role}</p>
+                    <p className="text-xs text-white/60 mt-0.5">{t.role}</p>
                   </div>
                   <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/25">
                     {t.plan}
@@ -344,11 +344,11 @@ export default function PlansPage() {
                     {faq.q}
                   </span>
                   <div className="h-5 w-5 shrink-0 rounded-full border border-white/15 flex items-center justify-center transition-transform group-open:rotate-45">
-                    <span className="text-white/40 text-sm leading-none">+</span>
+                    <span className="text-white/65 text-sm leading-none">+</span>
                   </div>
                 </summary>
                 <div className="px-6 pb-5">
-                  <p className="text-sm text-white/40 leading-relaxed">{faq.a}</p>
+                  <p className="text-sm text-white/65 leading-relaxed">{faq.a}</p>
                 </div>
               </details>
             ))}
@@ -360,7 +360,7 @@ export default function PlansPage() {
       <section className="py-20 px-6 lg:px-10 border-t border-white/[0.05]">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Try HostIQ free for 7 days</h2>
-          <p className="text-white/40 mb-8">
+          <p className="text-white/65 mb-8">
             Full access. No credit card. Switch or cancel anytime.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

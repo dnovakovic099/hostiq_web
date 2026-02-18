@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   Zap,
+  CreditCard,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ const navItems: Array<{
   { href: "/reviews", label: "Reviews", icon: Star },
   { href: "/issues", label: "Issues", icon: AlertTriangle },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/admin", label: "Admin", icon: Shield, adminOnly: true },
 ];
 

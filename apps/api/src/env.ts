@@ -67,6 +67,11 @@ const envSchema = z.object({
       "https://crap0y5bx5.execute-api.us-east-2.amazonaws.com/prod"
     ),
 
+  // Stripe
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ID: z.string().optional(),
+
   // App
   API_URL: z.string().default("http://localhost:3001"),
   APP_URL: z.string().default("http://localhost:3000"),

@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { env } from "./env";
 import authRoutes from "./routes/auth";
+import billingRoutes from "./routes/billing";
 import dashboardRoutes from "./routes/dashboard";
 import webhookRoutes from "./routes/webhooks/index";
 import propertiesRoutes from "./routes/properties";
@@ -48,6 +49,7 @@ api.get("/", (c) => {
 });
 
 api.route("/auth", authRoutes);
+api.route("/billing", billingRoutes);
 api.route("/dashboard", dashboardRoutes);
 api.route("/webhooks", webhookRoutes);
 api.route("/properties", propertiesRoutes);

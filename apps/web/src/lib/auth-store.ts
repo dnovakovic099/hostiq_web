@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export type UserRole = "OWNER" | "CLEANER" | "INTERNAL_OPS" | "ADMIN";
+export type SubscriptionStatus = "FREE" | "ACTIVE" | "PAST_DUE" | "CANCELLED";
 
 export interface AuthUser {
   id: string;
@@ -11,6 +12,7 @@ export interface AuthUser {
   name: string | null;
   role: UserRole;
   avatarUrl?: string | null;
+  subscriptionStatus: SubscriptionStatus;
 }
 
 interface AuthState {
@@ -20,6 +22,8 @@ interface AuthState {
   logout: () => void;
   isAuthenticated: () => boolean;
   hasRole: (role: UserRole) => boolean;
+  isSubscribed: () => boolean;
+  updateSubscriptionStatus: (status: SubscriptionStatus) => void;
 }
 
 const TOKEN_KEY = "hostiq_token";
@@ -59,6 +63,17 @@ export const useAuthStore = create<AuthState>()(
           return user.role === "ADMIN" || user.role === "INTERNAL_OPS";
         }
         return user.role === role;
+      },
+
+      isSubscribed: () => {
+        const { user } = get();
+        return user?.subscriptionStatus === "ACTIVE";
+      },
+
+      updateSubscriptionStatus: (status: SubscriptionStatus) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, subscriptionStatus: status } : null,
+        }));
       },
     }),
     {

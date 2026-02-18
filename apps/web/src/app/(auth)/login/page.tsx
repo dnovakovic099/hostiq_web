@@ -13,7 +13,7 @@ interface LoginResponse {
   success: boolean;
   data?: {
     token: string;
-    user: { id: string; email: string; name: string | null; role: string };
+    user: { id: string; email: string; name: string | null; role: string; subscriptionStatus: string };
   };
   error?: string;
 }
@@ -47,6 +47,7 @@ export default function LoginPage() {
         email: res.data.user.email,
         name: res.data.user.name,
         role: res.data.user.role as "OWNER" | "CLEANER" | "INTERNAL_OPS" | "ADMIN",
+        subscriptionStatus: (res.data.user.subscriptionStatus ?? "FREE") as "FREE" | "ACTIVE" | "PAST_DUE" | "CANCELLED",
       });
 
       router.replace("/dashboard");

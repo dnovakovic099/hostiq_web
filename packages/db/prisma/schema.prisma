@@ -18,6 +18,13 @@ enum UserRole {
   ADMIN
 }
 
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -30,6 +37,10 @@ model User {
   avatarUrl     String?   @map("avatar_url")
   timezone           String    @default("America/New_York")
   notificationPrefsJson Json?   @map("notification_prefs_json")
+  subscriptionStatus   SubscriptionStatus @default(FREE) @map("subscription_status")
+  stripeCustomerId     String?  @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?  @map("stripe_subscription_id")
+  subscriptionEndsAt   DateTime? @map("subscription_ends_at")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 

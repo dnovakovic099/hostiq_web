@@ -50,7 +50,8 @@ auth.post("/register", async (c) => {
       passwordHash,
       name,
       phone,
-      role: "OWNER", // Default role for self-registration
+      role: "OWNER",
+      subscriptionStatus: "FREE",
     },
   });
 
@@ -90,6 +91,7 @@ auth.post("/register", async (c) => {
         email: user.email,
         name: user.name,
         role: user.role,
+        subscriptionStatus: user.subscriptionStatus,
       },
     },
   });
@@ -150,6 +152,7 @@ auth.post("/login", async (c) => {
         email: user.email,
         name: user.name,
         role: user.role,
+        subscriptionStatus: user.subscriptionStatus,
       },
     },
   });

@@ -39,10 +39,10 @@ export function MarketingFooter() {
                 Host<span className="text-indigo-400">IQ</span>
               </span>
             </Link>
-            <p className="mt-4 text-sm text-white/40 leading-relaxed max-w-[180px]">
+            <p className="mt-4 text-sm text-white/55 leading-relaxed max-w-[180px]">
               The AI-powered property manager for modern hosts.
             </p>
-            <p className="mt-6 text-xs text-white/25">
+            <p className="mt-6 text-xs text-white/40">
               © {new Date().getFullYear()} HostIQ. All rights reserved.
             </p>
           </div>
@@ -50,7 +50,7 @@ export function MarketingFooter() {
           {/* Links */}
           {Object.entries(footerLinks).map(([group, links]) => (
             <div key={group}>
-              <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/45 mb-4">
                 {group}
               </p>
               <ul className="space-y-3">
@@ -58,7 +58,7 @@ export function MarketingFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-white/50 hover:text-white transition-colors"
+                      className="text-sm text-white/65 hover:text-white transition-colors"
                     >
                       {link.label}
                     </Link>

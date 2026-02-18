@@ -160,7 +160,7 @@ export default function FeaturesPage() {
               in one place.
             </span>
           </h1>
-          <p className="text-lg text-white/45 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
             Six deeply integrated modules — all talking to each other, all connected to your PMS data, 
             all working while you sleep.
           </p>
@@ -181,13 +181,13 @@ export default function FeaturesPage() {
                 <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${mod.gradient} mb-5 shadow-lg`}>
                   <mod.icon className="h-5 w-5 text-white" />
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/55 mb-3">
                   {mod.label}
                 </p>
                 <h2 className="text-2xl font-bold text-white mb-4 leading-snug">
                   {mod.headline}
                 </h2>
-                <p className="text-sm text-white/45 leading-relaxed mb-7">
+                <p className="text-sm text-white/70 leading-relaxed mb-7">
                   {mod.description}
                 </p>
                 <Link
@@ -214,7 +214,7 @@ export default function FeaturesPage() {
                 {/* Stat */}
                 <div className="mt-8 pt-7 border-t border-white/[0.06]">
                   <p className="text-4xl font-black text-white">{mod.stat.value}</p>
-                  <p className="text-sm text-white/35 mt-1">{mod.stat.label}</p>
+                  <p className="text-sm text-white/60 mt-1">{mod.stat.label}</p>
                 </div>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function FeaturesPage() {
             <h2 className="text-4xl font-bold tracking-tight">
               Connects to your stack
             </h2>
-            <p className="mt-4 text-white/40 max-w-md mx-auto">
+            <p className="mt-4 text-white/65 max-w-md mx-auto">
               Deep integrations with the tools you already use, plus more coming soon.
             </p>
           </div>
@@ -249,13 +249,13 @@ export default function FeaturesPage() {
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       int.status === "Live"
                         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-                        : "bg-white/[0.06] text-white/30 border border-white/[0.08]"
+                        : "bg-white/[0.06] text-white/55 border border-white/[0.08]"
                     }`}
                   >
                     {int.status}
                   </span>
                 </div>
-                <p className="text-xs text-white/35 leading-relaxed">{int.desc}</p>
+                <p className="text-xs text-white/60 leading-relaxed">{int.desc}</p>
               </div>
             ))}
           </div>
@@ -266,7 +266,7 @@ export default function FeaturesPage() {
       <section className="py-20 px-6 lg:px-10 border-t border-white/[0.05]">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-5">Ready to try every feature free?</h2>
-          <p className="text-white/40 mb-8">
+          <p className="text-white/65 mb-8">
             7-day free trial. No credit card. Full access to every module.
           </p>
           <Link

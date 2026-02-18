@@ -12,7 +12,7 @@ interface RegisterResponse {
   success: boolean;
   data?: {
     token: string;
-    user: { id: string; email: string; name: string | null; role: string };
+    user: { id: string; email: string; name: string | null; role: string; subscriptionStatus: string };
   };
   error?: string;
 }
@@ -52,9 +52,11 @@ export default function RegisterPage() {
         email: res.data.user.email,
         name: res.data.user.name,
         role: res.data.user.role as "OWNER" | "CLEANER" | "INTERNAL_OPS" | "ADMIN",
+        subscriptionStatus: "FREE",
       });
 
-      router.replace("/dashboard");
+      // New users start on the free plan — send them to billing to upgrade
+      router.replace("/billing");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
