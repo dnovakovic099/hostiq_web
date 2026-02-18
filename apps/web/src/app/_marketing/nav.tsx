@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Zap, Menu, X } from "lucide-react";
 
 const navLinks = [
+  { label: "Home", href: "/" },
   { label: "Features", href: "/features" },
   { label: "Pricing", href: "/plans" },
 ];
@@ -51,6 +52,7 @@ export function MarketingNav() {
                   ? "text-white bg-white/10"
                   : "text-white/60 hover:text-white hover:bg-white/[0.06]"
               }`}
+              aria-current={pathname === link.href ? "page" : undefined}
             >
               {link.label}
             </Link>

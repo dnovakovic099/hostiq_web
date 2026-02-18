@@ -10,6 +10,8 @@ import {
 } from "../lib/auth";
 import { requireAuth } from "../middleware/auth";
 import { logAudit } from "../middleware/audit";
+import { sendPasswordReset } from "../integrations/resend/client";
+import { env } from "../env";
 
 const auth = new Hono();
 
@@ -220,8 +222,13 @@ auth.post("/forgot-password", async (c) => {
     },
   });
 
-  // TODO: Send email via Resend with reset link
-  console.log(`[Auth] Password reset token for ${user.email}: ${resetToken}`);
+  const baseUrl = env.APP_URL ?? c.req.header("origin") ?? "https://app.hostiq.com";
+  try {
+    await sendPasswordReset(user.email, resetToken, baseUrl);
+  } catch (emailErr) {
+    console.error(`[Auth] Failed to send password reset email to ${user.email}:`, emailErr);
+    // Don't expose email errors to the client — token is stored, user can retry
+  }
 
   await logAudit(user.id, "forgot_password", "user", user.id, undefined, c.req.header("x-forwarded-for"));
 

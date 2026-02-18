@@ -74,7 +74,27 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    const fetchWebhookStatus = async () => {
+    const fetchIntegrationStatus = async () => {
+      // Prefer sync-job health endpoint — reflects actual API polling status, not just webhooks.
+      try {
+        const healthRes = await api.get<{
+          success: boolean;
+          data: Array<{ name: string; status: string }>;
+        }>("/dashboard/integrations/status");
+        const healthMap: Record<string, string> = {};
+        for (const item of healthRes.data ?? []) {
+          healthMap[item.name.toLowerCase()] =
+            item.status === "healthy" ? "connected" : item.status === "error" ? "error" : "not configured";
+        }
+        setIntegrationStatus({
+          hostify: healthMap["hostify"] ?? "not configured",
+          hostbuddy: healthMap["hostbuddy"] ?? "not configured",
+          openphone: healthMap["openphone"] ?? "not configured",
+        });
+        return;
+      } catch {
+        // fall through to webhook status
+      }
       try {
         const res = await api.get<{
           success: boolean;
@@ -85,19 +105,19 @@ export default function SettingsPage() {
         }>("/webhooks/status");
         const data = res.data;
         setIntegrationStatus({
-          hostify: data.hostify?.webhooks?.some((w) => w.confirmed) ? "connected" : "disconnected",
-          hostbuddy: data.hostbuddy?.status ?? "unknown",
-          openphone: "unknown",
+          hostify: data.hostify?.webhooks?.some((w) => w.confirmed) ? "connected" : "not configured",
+          hostbuddy: data.hostbuddy?.status === "healthy" ? "connected" : "not configured",
+          openphone: "not configured",
         });
       } catch {
         setIntegrationStatus({
-          hostify: "unknown",
-          hostbuddy: "unknown",
-          openphone: "unknown",
+          hostify: "not configured",
+          hostbuddy: "not configured",
+          openphone: "not configured",
         });
       }
     };
-    fetchWebhookStatus();
+    fetchIntegrationStatus();
   }, []);
 
   const saveProfile = async () => {
@@ -239,7 +259,8 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setPasswordForm((f) => ({ ...f, currentPassword: e.target.value }))
               }
-              placeholder="••••••••"
+              placeholder="Enter current password"
+              autoComplete="current-password"
             />
           </div>
           <div>
@@ -250,7 +271,8 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setPasswordForm((f) => ({ ...f, newPassword: e.target.value }))
               }
-              placeholder="••••••••"
+              placeholder="8+ characters"
+              autoComplete="new-password"
             />
           </div>
           <div>
@@ -261,7 +283,8 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))
               }
-              placeholder="••••••••"
+              placeholder="Re-enter new password"
+              autoComplete="new-password"
             />
           </div>
           {passwordError && <p className="text-destructive text-sm">{passwordError}</p>}
@@ -355,25 +378,20 @@ export default function SettingsPage() {
           <CardDescription>Connection status for your integrations</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {["hostify", "hostbuddy", "openphone"].map((name) => (
-            <div key={name} className="flex items-center justify-between">
-              <span className="font-medium capitalize">{name}</span>
-              <Badge
-                variant={
-                  integrationStatus[name] === "connected" || integrationStatus[name] === "healthy"
-                    ? "default"
-                    : "secondary"
-                }
-                className={cn(
-                  (integrationStatus[name] === "connected" ||
-                    integrationStatus[name] === "healthy") &&
-                    "bg-green-600 hover:bg-green-700"
-                )}
-              >
-                {integrationStatus[name] ?? "Unknown"}
-              </Badge>
-            </div>
-          ))}
+          {["hostify", "hostbuddy", "openphone"].map((name) => {
+            const s = integrationStatus[name];
+            return (
+              <div key={name} className="flex items-center justify-between">
+                <span className="font-medium capitalize">{name}</span>
+                <Badge
+                  variant={s === "connected" ? "default" : s === "error" ? "destructive" : "secondary"}
+                  className={cn(s === "connected" && "bg-green-600 hover:bg-green-700")}
+                >
+                  {s === "connected" ? "Connected" : s === "error" ? "Error" : "Not configured"}
+                </Badge>
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
     </div>

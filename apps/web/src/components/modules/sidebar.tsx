@@ -35,13 +35,13 @@ const navItems: Array<{
   { href: "/reservations", label: "Reservations", icon: Calendar },
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/cleaners", label: "Cleaners", icon: SprayCan },
+  { href: "/issues", label: "Issues", icon: AlertTriangle },
   { href: "/pricing", label: "Pricing", icon: DollarSign },
   { href: "/revenue", label: "Revenue", icon: TrendingUp },
   { href: "/marketing", label: "Marketing", icon: Megaphone },
   { href: "/reviews", label: "Reviews", icon: Star },
-  { href: "/issues", label: "Issues", icon: AlertTriangle },
-  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/billing", label: "Billing", icon: CreditCard },
+  { href: "/settings", label: "Settings", icon: Settings },
   { href: "/admin", label: "Admin", icon: Shield, adminOnly: true },
 ];
 
@@ -169,6 +169,7 @@ export function Sidebar() {
             </div>
           </div>
           <button
+            type="button"
             onClick={() => {
               logout();
               setMobileOpen(false);

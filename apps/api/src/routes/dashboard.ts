@@ -201,4 +201,37 @@ dashboard.get("/activity", async (c) => {
   });
 });
 
+// ============================================
+// GET /integrations/status - Integration health (any authenticated user)
+// ============================================
+dashboard.get("/integrations/status", async (c) => {
+  const integrations = ["hostify", "hostbuddy", "openphone"];
+
+  const healthRecords = await prisma.integrationHealth.findMany({
+    where: { integration: { in: integrations } },
+    select: {
+      integration: true,
+      status: true,
+      lastSuccessAt: true,
+      consecutiveFailures: true,
+    },
+  });
+
+  const healthMap = Object.fromEntries(
+    healthRecords.map((h) => [h.integration, h])
+  );
+
+  const result = integrations.map((name) => {
+    const record = healthMap[name];
+    return {
+      name,
+      status: record?.status ?? "unknown",
+      lastSuccessAt: record?.lastSuccessAt ?? null,
+      consecutiveFailures: record?.consecutiveFailures ?? 0,
+    };
+  });
+
+  return c.json({ success: true, data: result });
+});
+
 export default dashboard;

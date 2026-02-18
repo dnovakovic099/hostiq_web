@@ -46,8 +46,7 @@ function formatRelativeTime(iso: string): string {
   return date.toLocaleDateString();
 }
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
+function getGreeting(hour: number): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
@@ -77,28 +76,38 @@ interface WebhookStatus {
   hostbuddy?: { status: string; lastReceived: string | null };
 }
 
+interface IntegrationHealth {
+  name: string;
+  status: string;
+  lastSuccessAt: string | null;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [webhookStatus, setWebhookStatus] = useState<WebhookStatus | null>(null);
-  const [properties, setProperties] = useState<unknown[]>([]);
+  const [integrationHealth, setIntegrationHealth] = useState<IntegrationHealth[]>([]);
+  const [properties, setProperties] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState("Welcome");
 
   const fetchData = useCallback(async () => {
     try {
       setError(null);
-      const [statsRes, activityRes, propertiesRes, webhookRes] = await Promise.all([
+      const [statsRes, activityRes, propertiesRes, webhookRes, healthRes] = await Promise.all([
         api.get<{ success: boolean; data: DashboardStats }>("/dashboard/stats"),
         api.get<{ success: boolean; data: ActivityItem[] }>("/dashboard/activity"),
-        api.get<{ success: boolean; data: unknown[] }>("/properties"),
+        api.get<{ success: boolean; data: { id: string; name: string }[] }>("/properties"),
         api.get<{ success: boolean; data: WebhookStatus }>("/webhooks/status").catch(() => null),
+        api.get<{ success: boolean; data: IntegrationHealth[] }>("/dashboard/integrations/status").catch(() => null),
       ]);
 
       setStats(statsRes.data);
       setActivity(activityRes.data);
       setProperties(propertiesRes.data ?? []);
       if (webhookRes?.data) setWebhookStatus(webhookRes.data);
+      if (healthRes?.data) setIntegrationHealth(healthRes.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load dashboard");
     } finally {
@@ -109,6 +118,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    setGreeting(getGreeting(new Date().getHours()));
+  }, []);
 
   useSSE((event) => {
     if (
@@ -122,6 +135,15 @@ export default function DashboardPage() {
   });
 
   const getIntegrationStatus = (name: string): "healthy" | "degraded" | "error" => {
+    // Prefer sync-job health data (from admin endpoint) over webhook confirmation status,
+    // since Hostify uses API polling not webhook push.
+    const health = integrationHealth.find((h) => h.name.toLowerCase() === name);
+    if (health) {
+      if (health.status === "healthy") return "healthy";
+      if (health.status === "error") return "error";
+      return "degraded";
+    }
+    // Fallback to webhook status
     if (!webhookStatus) return "degraded";
     if (name === "hostify") {
       const webhooks = webhookStatus.hostify?.webhooks ?? [];
@@ -132,7 +154,6 @@ export default function DashboardPage() {
       const status = webhookStatus.hostbuddy?.status ?? "unknown";
       return status === "healthy" ? "healthy" : status === "error" ? "error" : "degraded";
     }
-    if (name === "openphone") return "degraded";
     return "degraded";
   };
 
@@ -306,7 +327,7 @@ export default function DashboardPage() {
       <div className="rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 border border-white/10 shadow-xl overflow-hidden">
         <div className="p-6 md:p-8 text-white">
           <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-            {getGreeting()}
+            {greeting}
           </span>
           <h1 className="mt-4 text-2xl md:text-3xl font-semibold tracking-tight">
             Dashboard Overview
@@ -461,7 +482,7 @@ export default function DashboardPage() {
                       {status === "healthy" && <CheckCircle2 className="h-3.5 w-3.5" />}
                       {status === "degraded" && <AlertCircle className="h-3.5 w-3.5" />}
                       {status === "error" && <XCircle className="h-3.5 w-3.5" />}
-                      {status === "healthy" ? "Connected" : status === "error" ? "Error" : "Pending"}
+                      {status === "healthy" ? "Connected" : status === "error" ? "Error" : "Not configured"}
                     </span>
                   </div>
                 );

@@ -52,6 +52,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [integrations, setIntegrations] = useState<IntegrationHealth[]>([]);
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
+  const [properties, setProperties] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,14 +70,16 @@ export default function AdminPage() {
     if (!isAdmin) return;
     try {
       setError(null);
-      const [usersRes, integrationsRes, auditRes] = await Promise.all([
+      const [usersRes, integrationsRes, auditRes, propsRes] = await Promise.all([
         api.get<{ success: boolean; data: AdminUser[] }>("/admin/users"),
         api.get<{ success: boolean; data: IntegrationHealth[] }>("/admin/integrations/health"),
         api.get<{ success: boolean; data: AuditEntry[] }>("/admin/audit?limit=30"),
+        api.get<{ success: boolean; data: { id: string; name: string }[] }>("/properties").catch(() => ({ data: [] as { id: string; name: string }[] })),
       ]);
       setUsers(usersRes.data ?? []);
       setIntegrations(integrationsRes.data ?? []);
       setAuditLog(auditRes.data ?? []);
+      setProperties(propsRes.data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load admin data");
     } finally {
@@ -242,23 +245,47 @@ export default function AdminPage() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Property selection</label>
-              <p className="text-xs text-muted-foreground mb-1">
-                Property assignment (optional) — API supports propertyIds array
+              <label className="text-sm font-medium mb-1 block">
+                Property access{" "}
+                <span className="text-muted-foreground font-normal">(optional)</span>
+              </label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select which properties this user can access. Leave empty for all properties.
               </p>
-              <Input
-                placeholder="Property IDs (comma-separated)"
-                value={inviteForm.propertyIds.join(", ")}
-                onChange={(e) =>
-                  setInviteForm((f) => ({
-                    ...f,
-                    propertyIds: e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter(Boolean),
-                  }))
-                }
-              />
+              {properties.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">No properties found</p>
+              ) : (
+                <div className="max-h-40 overflow-y-auto rounded-lg border border-input bg-background p-2 space-y-1">
+                  {properties.slice(0, 50).map((p) => (
+                    <label key={p.id} className="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-muted/40 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={inviteForm.propertyIds.includes(p.id)}
+                        onChange={(e) =>
+                          setInviteForm((f) => ({
+                            ...f,
+                            propertyIds: e.target.checked
+                              ? [...f.propertyIds, p.id]
+                              : f.propertyIds.filter((id) => id !== p.id),
+                          }))
+                        }
+                        className="rounded"
+                      />
+                      <span className="truncate">{p.name}</span>
+                    </label>
+                  ))}
+                  {properties.length > 50 && (
+                    <p className="text-xs text-muted-foreground px-2 pt-1">
+                      Showing first 50 of {properties.length} properties
+                    </p>
+                  )}
+                </div>
+              )}
+              {inviteForm.propertyIds.length > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {inviteForm.propertyIds.length} propert{inviteForm.propertyIds.length === 1 ? "y" : "ies"} selected
+                </p>
+              )}
             </div>
             {inviteSuccess && (
               <p className="text-green-600 text-sm">Invite sent successfully</p>
@@ -368,12 +395,11 @@ export default function AdminPage() {
                   {auditLog.map((entry) => (
                     <tr key={entry.id} className="border-b">
                       <td className="p-3 text-sm">{entry.action}</td>
-                      <td className="p-3 text-sm">
-                        {entry.entityType}
-                        {entry.entityId && ` #${entry.entityId.slice(0, 8)}`}
+                      <td className="p-3 text-sm capitalize">
+                        {entry.entityType.replace(/_/g, " ")}
                       </td>
                       <td className="p-3 text-sm text-muted-foreground">
-                        {entry.user?.email ?? "—"}
+                        {entry.user?.name ?? entry.user?.email ?? "System"}
                       </td>
                       <td className="p-3 text-sm text-muted-foreground">
                         {new Date(entry.createdAt).toLocaleString()}

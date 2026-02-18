@@ -321,9 +321,12 @@ export default function ReservationsPage() {
         <div className="page-header mb-0">
           <h1 className="flex items-center gap-2.5">
             Reservations
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary">
+            <span
+              title="Synced live from your PMS (Hostify). Data refreshes automatically in the background."
+              className="hidden sm:inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-primary cursor-help"
+            >
               <Sparkles className="h-3 w-3" />
-              Live
+              Live sync
             </span>
           </h1>
           <p>
@@ -379,38 +382,38 @@ export default function ReservationsPage() {
             </div>
             <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
               <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                Revenue in view
+                Revenue (this page)
               </p>
               <p className="mt-1 text-xl font-semibold tabular-nums">
                 {formatCurrency(stats.totalRevenue)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
                 <DollarSign className="h-3.5 w-3.5" />
-                Summed from visible rows
+                {reservations.length} rows shown — use filters for totals
               </p>
             </div>
             <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
               <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                Average stay
+                Avg stay (this page)
               </p>
               <p className="mt-1 text-xl font-semibold tabular-nums">
                 {stats.avgNights.toFixed(1)} nights
               </p>
               <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
                 <BedDouble className="h-3.5 w-3.5" />
-                Based on visible reservations
+                Based on {reservations.length} visible reservations
               </p>
             </div>
             <div className="rounded-xl border border-border/40 bg-card/70 p-3.5">
               <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                Next 14 days
+                Next 14 days (this page)
               </p>
               <p className="mt-1 text-xl font-semibold tabular-nums">
                 {stats.upcomingCheckIns} check-ins
               </p>
               <p className="mt-1 text-xs text-muted-foreground inline-flex items-center gap-1.5">
                 <CalendarClock className="h-3.5 w-3.5" />
-                {stats.acceptedCount} currently accepted
+                {stats.acceptedCount} accepted · page {filters.page} of {pagination?.totalPages ?? 1}
               </p>
             </div>
           </div>
@@ -604,7 +607,7 @@ export default function ReservationsPage() {
                                 <p className="font-medium text-sm truncate max-w-[180px]">
                                   {r.guest?.name ?? "Unknown Guest"}
                                 </p>
-                                {r.guest?.email && (
+                                {r.guest?.email && !(r.channel ?? "").toLowerCase().includes("owner") && (
                                   <p className="text-[11px] text-muted-foreground/60 truncate max-w-[180px]">
                                     {r.guest.email}
                                   </p>
@@ -640,7 +643,9 @@ export default function ReservationsPage() {
                           </td>
                           <td className="text-right">
                             <span className="font-semibold text-sm tabular-nums">
-                              {formatCurrency(r.total)}
+                              {(r.channel ?? "").toLowerCase().includes("owner")
+                                ? <span className="text-muted-foreground font-normal">N/A</span>
+                                : formatCurrency(r.total)}
                             </span>
                           </td>
                           <td>
@@ -669,10 +674,12 @@ export default function ReservationsPage() {
                                           <p className="text-sm font-medium">
                                             {detail.guest?.name ?? "Unknown"}
                                           </p>
-                                          <p className="text-xs text-muted-foreground mt-0.5">
-                                            {detail.guest?.email ?? "No email"}
-                                          </p>
-                                          {detail.guest?.phone && (
+                                          {!(detail.channel ?? "").toLowerCase().includes("owner") && (
+                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                              {detail.guest?.email ?? "No email"}
+                                            </p>
+                                          )}
+                                          {detail.guest?.phone && !(detail.channel ?? "").toLowerCase().includes("owner") && (
                                             <p className="text-xs text-muted-foreground">
                                               {detail.guest.phone}
                                             </p>
@@ -685,14 +692,27 @@ export default function ReservationsPage() {
                                           Financials
                                         </div>
                                         <div className="rounded-lg bg-card border border-border/40 p-3">
-                                          <p className="text-sm font-medium">
-                                            {formatCurrency(detail.total)}
-                                          </p>
-                                          {detail.financials && (
-                                            <p className="text-xs text-muted-foreground mt-0.5">
-                                              Gross: {formatCurrency(detail.financials.gross ?? 0)}{" "}
-                                              · Net: {formatCurrency(detail.financials.net ?? 0)}
-                                            </p>
+                                          {(detail.channel ?? "").toLowerCase().includes("owner") ? (
+                                            <p className="text-sm text-muted-foreground">Owner block — no revenue</p>
+                                          ) : (
+                                            <>
+                                              <p className="text-sm font-medium">
+                                                {detail.total != null && detail.total > 0
+                                                  ? formatCurrency(detail.total)
+                                                  : "No total recorded"}
+                                              </p>
+                                              {detail.financials && (detail.financials.gross ?? 0) > 0 && (
+                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                  Gross: {formatCurrency(detail.financials.gross ?? 0)}{" "}
+                                                  · Net: {formatCurrency(detail.financials.net ?? 0)}
+                                                </p>
+                                              )}
+                                              {!detail.financials && (
+                                                <p className="text-xs text-muted-foreground mt-0.5">
+                                                  No financial breakdown available
+                                                </p>
+                                              )}
+                                            </>
                                           )}
                                         </div>
                                       </div>

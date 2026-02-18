@@ -207,12 +207,15 @@ const MOCK_PAYOUTS: Payout[] = [
   },
 ];
 
+const PROPERTY_PAGE_SIZE = 10;
+
 export default function RevenuePage() {
   const [stats, setStats] = useState<ReservationStats | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [propertyPage, setPropertyPage] = useState(0);
 
   const fetchData = useCallback(async () => {
     try {
@@ -253,6 +256,15 @@ export default function RevenuePage() {
   const maxMonthlyRevenue = Math.max(
     ...computed.monthlyTrend.map((m) => m.revenue),
     1
+  );
+
+  const sortedProperties = [...computed.byProperty].sort(
+    (a, b) => b.revenueThisMonth - a.revenueThisMonth
+  );
+  const propertyPageCount = Math.ceil(sortedProperties.length / PROPERTY_PAGE_SIZE);
+  const pagedProperties = sortedProperties.slice(
+    propertyPage * PROPERTY_PAGE_SIZE,
+    (propertyPage + 1) * PROPERTY_PAGE_SIZE
   );
 
   if (loading) {
@@ -356,7 +368,9 @@ export default function RevenuePage() {
         <Card>
           <CardHeader>
             <CardTitle>Revenue by Property</CardTitle>
-            <CardDescription>This month vs last month</CardDescription>
+            <CardDescription>
+              This month vs last month · {sortedProperties.length} properties
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -371,7 +385,7 @@ export default function RevenuePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {computed.byProperty.map((p) => (
+                  {pagedProperties.map((p) => (
                     <tr key={p.propertyId} className="border-b">
                       <td className="p-3 font-medium">{p.propertyName}</td>
                       <td className="p-3 text-right">
@@ -396,6 +410,31 @@ export default function RevenuePage() {
                 </tbody>
               </table>
             </div>
+            {propertyPageCount > 1 && (
+              <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+                <span>
+                  Page {propertyPage + 1} of {propertyPageCount}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPropertyPage((p) => Math.max(0, p - 1))}
+                    disabled={propertyPage === 0}
+                    className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-muted transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPropertyPage((p) => Math.min(propertyPageCount - 1, p + 1))}
+                    disabled={propertyPage === propertyPageCount - 1}
+                    className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-muted transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -132,7 +132,7 @@ reservations.get("/", async (c) => {
         guest: true,
         property: { select: { id: true, name: true, address: true } },
       },
-      orderBy: { checkIn: "desc" },
+      orderBy: { checkIn: "asc" },
       skip,
       take,
     }),

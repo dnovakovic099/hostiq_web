@@ -22,6 +22,7 @@ import {
   BarChart3,
   Shield,
   AlertTriangle,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,13 +37,23 @@ const FREE_FEATURES = [
   { label: "AI-powered automation", available: false },
 ];
 
-const PRO_FEATURES = [
+const FLAT_FEATURES = [
   { icon: Calendar, label: "Full 30-day pricing calendar" },
   { icon: DollarSign, label: "Dynamic pricing & custom adjustments" },
   { icon: BarChart3, label: "Revenue analytics & detailed reports" },
   { icon: MessageSquare, label: "AI-powered guest message automation" },
   { icon: Zap, label: "Smart escalation & issue tracking" },
-  { icon: Shield, label: "Priority support" },
+  { icon: Shield, label: "Email support" },
+];
+
+const PERFORMANCE_FEATURES = [
+  { icon: Calendar, label: "Full 30-day pricing calendar" },
+  { icon: DollarSign, label: "Dynamic pricing & custom adjustments" },
+  { icon: BarChart3, label: "Revenue analytics & detailed reports" },
+  { icon: MessageSquare, label: "AI-powered guest message automation" },
+  { icon: Zap, label: "Smart escalation & issue tracking" },
+  { icon: TrendingUp, label: "Unlimited properties" },
+  { icon: Shield, label: "Priority onboarding & success manager" },
 ];
 
 interface CheckoutResponse {
@@ -174,7 +185,7 @@ export default function BillingPage() {
 
       {/* Plan comparison */}
       {!isActive && (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-3">
           {/* Free plan */}
           <Card className="border-border">
             <CardHeader>
@@ -205,24 +216,24 @@ export default function BillingPage() {
             </CardContent>
           </Card>
 
-          {/* Pro plan */}
+          {/* Flat plan */}
           <Card className="border-primary/40 bg-primary/[0.03] relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary to-violet-500" />
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Pro</CardTitle>
+                <CardTitle className="text-lg">Flat Plan</CardTitle>
                 <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                  Recommended
+                  Up to 20 properties
                 </span>
               </div>
-              <CardDescription>Everything you need to run your properties</CardDescription>
+              <CardDescription>Predictable monthly cost</CardDescription>
               <p className="text-3xl font-bold mt-2">
-                $99<span className="text-base font-normal text-muted-foreground">/mo</span>
+                $199<span className="text-base font-normal text-muted-foreground">/mo</span>
               </p>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2.5">
-                {PRO_FEATURES.map((f) => {
+                {FLAT_FEATURES.map((f) => {
                   const Icon = f.icon;
                   return (
                     <li key={f.label} className="flex items-start gap-2.5 text-sm">
@@ -233,26 +244,66 @@ export default function BillingPage() {
                 })}
               </ul>
               <Button className="w-full mt-6" onClick={handleUpgrade} disabled={loading}>
-                {loading ? "Redirecting to checkout..." : isCancelled ? "Resubscribe" : "Upgrade to Pro"}
+                {loading ? "Redirecting..." : isCancelled ? "Resubscribe" : "Choose Flat Plan"}
               </Button>
               <p className="text-center text-xs text-muted-foreground mt-3">
-                Secure checkout via Stripe · Cancel anytime
+                Secure checkout via Stripe · Select plan during checkout
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Performance plan */}
+          <Card className="border-violet-500/40 bg-violet-500/[0.03] relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 to-indigo-500" />
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Performance Plan</CardTitle>
+                <span className="rounded-full bg-violet-500/15 px-2.5 py-0.5 text-xs font-semibold text-violet-400">
+                  Unlimited
+                </span>
+              </div>
+              <CardDescription>Pay proportionally to your earnings</CardDescription>
+              <p className="text-3xl font-bold mt-2">
+                5%<span className="text-base font-normal text-muted-foreground"> of revenue</span>
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2.5">
+                {PERFORMANCE_FEATURES.map((f) => {
+                  const Icon = f.icon;
+                  return (
+                    <li key={f.label} className="flex items-start gap-2.5 text-sm">
+                      <Icon className="h-4 w-4 mt-0.5 shrink-0 text-violet-400" />
+                      <span>{f.label}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <Button
+                className="w-full mt-6 bg-violet-600 hover:bg-violet-700 text-white"
+                onClick={handleUpgrade}
+                disabled={loading}
+              >
+                {loading ? "Redirecting..." : isCancelled ? "Resubscribe" : "Choose Performance Plan"}
+              </Button>
+              <p className="text-center text-xs text-muted-foreground mt-3">
+                Secure checkout via Stripe · Select plan during checkout
               </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Active subscriber: pro features overview */}
+      {/* Active subscriber: features overview */}
       {isActive && (
         <Card>
           <CardHeader>
-            <CardTitle>Your Pro Features</CardTitle>
-            <CardDescription>Everything included in your plan</CardDescription>
+            <CardTitle>Your Plan Features</CardTitle>
+            <CardDescription>Everything included in your subscription</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {PRO_FEATURES.map((f) => {
+              {FLAT_FEATURES.map((f) => {
                 const Icon = f.icon;
                 return (
                   <div key={f.label} className="flex items-center gap-2.5 text-sm">

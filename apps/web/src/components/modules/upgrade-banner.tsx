@@ -38,7 +38,7 @@ export function UpgradeBanner({ status }: UpgradeBannerProps) {
             ? "Your payment failed. Update your billing details to restore full access."
             : isCancelled
             ? "Your subscription has ended. Renew to restore full access."
-            : "You're on the free plan — pricing is limited to 7 days. Upgrade for the full experience."}
+            : "You're on the free plan. Upgrade to unlock all features."}
         </span>
       </div>
       <div className="flex items-center gap-3 shrink-0">

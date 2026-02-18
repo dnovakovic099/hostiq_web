@@ -68,6 +68,8 @@ const MARKETING_TIPS = [
   },
 ];
 
+const PAGE_SIZE = 12;
+
 export default function MarketingPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [listingHealth, setListingHealth] = useState<ListingHealth[]>([]);
@@ -76,6 +78,7 @@ export default function MarketingPage() {
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditError, setAuditError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -172,6 +175,9 @@ export default function MarketingPage() {
     );
   }
 
+  const pageCount = Math.ceil(listingHealth.length / PAGE_SIZE);
+  const pagedListings = listingHealth.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   return (
     <div className="space-y-6">
       <div className="page-header">
@@ -181,7 +187,7 @@ export default function MarketingPage() {
 
       {/* Listing Health Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {listingHealth.map((h) => (
+        {pagedListings.map((h) => (
           <Card
             key={h.propertyId}
             className={cn(
@@ -252,6 +258,32 @@ export default function MarketingPage() {
           </Card>
         ))}
       </div>
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, listingHealth.length)} of {listingHealth.length} listings
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-muted transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+              disabled={page === pageCount - 1}
+              className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-muted transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Audit Results Section */}
       {selectedPropertyId && (

@@ -211,10 +211,13 @@ export default function MessagesPage() {
                 <p className="text-sm text-muted-foreground">No conversations found</p>
               </div>
             ) : (
-              <div className="divide-y">
+                  <div className="divide-y">
                 {threads.map((t) => (
                   <button
                     key={t.id}
+                    type="button"
+                    aria-label={`Open conversation with ${t.guest?.name ?? "Guest"} at ${t.property.name}`}
+                    aria-pressed={selectedThread?.id === t.id}
                     className={cn(
                       "w-full text-left p-4 hover:bg-muted/50 transition-colors",
                       selectedThread?.id === t.id && "bg-muted"
