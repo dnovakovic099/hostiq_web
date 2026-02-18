@@ -25,24 +25,51 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/auth-store";
 
-const navItems: Array<{
+interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   adminOnly?: boolean;
-}> = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/reservations", label: "Reservations", icon: Calendar },
-  { href: "/messages", label: "Messages", icon: MessageSquare },
-  { href: "/cleaners", label: "Cleaners", icon: SprayCan },
-  { href: "/issues", label: "Issues", icon: AlertTriangle },
-  { href: "/pricing", label: "Pricing", icon: DollarSign },
-  { href: "/revenue", label: "Revenue", icon: TrendingUp },
-  { href: "/marketing", label: "Marketing", icon: Megaphone },
-  { href: "/reviews", label: "Reviews", icon: Star },
-  { href: "/billing", label: "Billing", icon: CreditCard },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/admin", label: "Admin", icon: Shield, adminOnly: true },
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/reservations", label: "Reservations", icon: Calendar },
+      { href: "/messages", label: "Messages", icon: MessageSquare },
+      { href: "/cleaners", label: "Cleaners", icon: SprayCan },
+      { href: "/issues", label: "Issues", icon: AlertTriangle },
+    ],
+  },
+  {
+    label: "Analytics",
+    items: [
+      { href: "/revenue", label: "Revenue", icon: TrendingUp },
+      { href: "/pricing", label: "Pricing", icon: DollarSign },
+      { href: "/marketing", label: "Marketing", icon: Megaphone },
+      { href: "/reviews", label: "Reviews", icon: Star },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { href: "/billing", label: "Billing", icon: CreditCard },
+      { href: "/settings", label: "Settings", icon: Settings },
+      { href: "/admin", label: "Admin", icon: Shield, adminOnly: true },
+    ],
+  },
 ];
 
 export function Sidebar() {
@@ -53,10 +80,6 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const showAdmin = hasRole("ADMIN") || hasRole("INTERNAL_OPS");
-
-  const visibleNavItems = navItems.filter(
-    (item) => !item.adminOnly || showAdmin
-  );
 
   return (
     <>
@@ -113,39 +136,52 @@ export function Sidebar() {
         <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         {/* Navigation */}
-        <nav className="relative flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-          <p className="px-3 mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/25">
-            Menu
-          </p>
-          {visibleNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+        <nav className="relative flex-1 overflow-y-auto px-3 py-4 space-y-4">
+          {navGroups.map((group) => {
+            const visibleItems = group.items.filter(
+              (item) => !item.adminOnly || showAdmin
+            );
+            if (visibleItems.length === 0) return null;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-[9px] text-[13px] font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-white/[0.08] text-white"
-                    : "text-white/50 hover:bg-white/[0.04] hover:text-white/80"
-                )}
-              >
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-gradient-to-b from-primary to-violet-400" />
-                )}
-                <Icon
-                  className={cn(
-                    "h-[17px] w-[17px] shrink-0 transition-colors duration-200",
-                    isActive ? "text-primary" : "text-white/30 group-hover:text-white/60"
-                  )}
-                />
-                <span>{item.label}</span>
-              </Link>
+              <div key={group.label}>
+                <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/25">
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          "group relative flex items-center gap-3 rounded-lg px-3 py-[9px] text-[13px] font-medium transition-all duration-200",
+                          isActive
+                            ? "bg-white/[0.08] text-white"
+                            : "text-white/50 hover:bg-white/[0.04] hover:text-white/80"
+                        )}
+                      >
+                        {isActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-gradient-to-b from-primary to-violet-400" />
+                        )}
+                        <Icon
+                          className={cn(
+                            "h-[17px] w-[17px] shrink-0 transition-colors duration-200",
+                            isActive ? "text-primary" : "text-white/30 group-hover:text-white/60"
+                          )}
+                        />
+                        <span>{item.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </nav>

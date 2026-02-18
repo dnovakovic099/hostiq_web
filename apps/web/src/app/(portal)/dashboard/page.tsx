@@ -82,6 +82,8 @@ interface IntegrationHealth {
   lastSuccessAt: string | null;
 }
 
+type ActivityFilter = "all" | "reservation" | "message" | "issue";
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
@@ -91,6 +93,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [greeting, setGreeting] = useState("Welcome");
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>("all");
 
   const fetchData = useCallback(async () => {
     try {
@@ -372,6 +375,34 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Quick Actions strip — above the fold */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { href: "/reservations", icon: Calendar, label: "Reservations", color: "text-blue-600 bg-blue-500/10 hover:bg-blue-500/15" },
+          { href: "/messages", icon: MessageSquare, label: "Messages", color: "text-violet-600 bg-violet-500/10 hover:bg-violet-500/15" },
+          { href: "/revenue", icon: DollarSign, label: "Revenue", color: "text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/15" },
+          { href: "/issues", icon: AlertTriangle, label: "Issues", color: "text-rose-600 bg-rose-500/10 hover:bg-rose-500/15" },
+        ].map((action) => {
+          const Icon = action.icon;
+          return (
+            <Link
+              key={action.href}
+              href={action.href}
+              className={cn(
+                "group flex items-center gap-3 rounded-xl border border-border/50 bg-card px-4 py-3 transition-all duration-200 hover:border-border hover:shadow-sm"
+              )}
+            >
+              <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg shrink-0 transition-colors", action.color)}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                {action.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
       {/* Stat cards - 4-col grid on xl */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
         {statCards.map((card) => {
@@ -400,60 +431,89 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Live Activity */}
         <Card className="lg:col-span-3">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-[15px]">
-              <Activity className="h-4 w-4 text-muted-foreground/60" />
-              Live Activity
-            </CardTitle>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-[15px]">
+                <Activity className="h-4 w-4 text-muted-foreground/60" />
+                Live Activity
+              </CardTitle>
+              {/* Type filter */}
+              <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-0.5">
+                {(["all", "reservation", "message", "issue"] as const).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setActivityFilter(f)}
+                    className={cn(
+                      "rounded-md px-2.5 py-1 text-[11px] font-medium capitalize transition-all",
+                      activityFilter === f
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {f === "all" ? "All" : f === "reservation" ? "Bookings" : f === "message" ? "Messages" : "Issues"}
+                  </button>
+                ))}
+              </div>
+            </div>
             <CardDescription className="mt-1">Latest events across your properties</CardDescription>
           </CardHeader>
           <CardContent>
-            {activity.length === 0 ? (
-              <div className="py-12 text-center">
-                <Activity className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">No recent activity</p>
-              </div>
-            ) : (
-              <ul className="space-y-0.5">
-                {activity.map((item, i) => (
-                  <li
-                    key={`${item.type}-${item.id}`}
-                    className="flex gap-3 text-sm py-3 border-b border-border/20 last:border-0"
-                  >
-                    <span className="shrink-0 mt-0.5">
-                      {item.type === "reservation" && (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                          <Calendar className="h-3.5 w-3.5" />
-                        </span>
-                      )}
-                      {item.type === "message" && (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
-                          <MessageSquare className="h-3.5 w-3.5" />
-                        </span>
-                      )}
-                      {item.type === "issue" && (
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                        </span>
-                      )}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[13px]">{item.title}</p>
-                      <p className="text-muted-foreground text-xs truncate mt-0.5">{item.description}</p>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground/70 shrink-0 mt-0.5">
-                      {formatRelativeTime(item.timestamp)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {(() => {
+              const filtered = activityFilter === "all"
+                ? activity
+                : activity.filter((a) => a.type === activityFilter);
+              if (filtered.length === 0) {
+                return (
+                  <div className="py-12 text-center">
+                    <Activity className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      {activityFilter === "all" ? "No recent activity" : `No recent ${activityFilter}s`}
+                    </p>
+                  </div>
+                );
+              }
+              return (
+                <ul className="space-y-0.5">
+                  {filtered.map((item) => (
+                    <li
+                      key={`${item.type}-${item.id}`}
+                      className="flex gap-3 text-sm py-3 border-b border-border/20 last:border-0"
+                    >
+                      <span className="shrink-0 mt-0.5">
+                        {item.type === "reservation" && (
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
+                            <Calendar className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                        {item.type === "message" && (
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
+                            <MessageSquare className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                        {item.type === "issue" && (
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
+                            <AlertTriangle className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[13px]">{item.title}</p>
+                        <p className="text-muted-foreground text-xs truncate mt-0.5">{item.description}</p>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground/70 shrink-0 mt-0.5">
+                        {formatRelativeTime(item.timestamp)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
           </CardContent>
         </Card>
 
-        {/* Right column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Integrations */}
+        {/* Right column — Integrations only (Quick Actions moved above fold) */}
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-[15px]">
@@ -463,59 +523,48 @@ export default function DashboardPage() {
               <CardDescription className="mt-1">Connected service status</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              {["hostify", "hostbuddy", "openphone"].map((name) => {
+              {(["hostify", "hostbuddy", "openphone"] as const).map((name) => {
                 const status = getIntegrationStatus(name);
+                const isUnconfigured = status === "degraded";
+                const isError = status === "error";
                 return (
                   <div
                     key={name}
                     className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
                     <span className="text-[13px] font-medium capitalize">{name}</span>
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium",
-                        status === "healthy" && "bg-emerald-500/15 text-emerald-600",
-                        status === "degraded" && "bg-amber-500/15 text-amber-600",
-                        status === "error" && "bg-rose-500/15 text-rose-600"
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium",
+                          status === "healthy" && "bg-emerald-500/15 text-emerald-600",
+                          isUnconfigured && "bg-muted text-muted-foreground",
+                          isError && "bg-rose-500/15 text-rose-600"
+                        )}
+                      >
+                        {status === "healthy" && <CheckCircle2 className="h-3.5 w-3.5" />}
+                        {isUnconfigured && <AlertCircle className="h-3.5 w-3.5" />}
+                        {isError && <XCircle className="h-3.5 w-3.5" />}
+                        {status === "healthy" ? "Connected" : isError ? "Error" : "Not set up"}
+                      </span>
+                      {(isUnconfigured || isError) && (
+                        <Link
+                          href="/settings"
+                          className="text-[11px] font-semibold text-primary hover:underline"
+                        >
+                          {isError ? "Fix →" : "Set up →"}
+                        </Link>
                       )}
-                    >
-                      {status === "healthy" && <CheckCircle2 className="h-3.5 w-3.5" />}
-                      {status === "degraded" && <AlertCircle className="h-3.5 w-3.5" />}
-                      {status === "error" && <XCircle className="h-3.5 w-3.5" />}
-                      {status === "healthy" ? "Connected" : status === "error" ? "Error" : "Not configured"}
-                    </span>
+                    </div>
                   </div>
                 );
               })}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-[15px]">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-2">
-              {[
-                { href: "/reservations", icon: Calendar, label: "Reservations", color: "text-blue-600 bg-blue-500/10" },
-                { href: "/messages", icon: MessageSquare, label: "Messages", color: "text-violet-600 bg-violet-500/10" },
-                { href: "/revenue", icon: DollarSign, label: "Revenue", color: "text-emerald-600 bg-emerald-500/10" },
-                { href: "/issues", icon: AlertTriangle, label: "Issues", color: "text-rose-600 bg-rose-500/10" },
-              ].map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Link key={action.href} href={action.href} className="block group">
-                    <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all duration-200 cursor-pointer text-center group-hover:shadow-sm">
-                      <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", action.color)}>
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                        {action.label}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })}
+              <p className="pt-1 text-[11px] text-muted-foreground px-1">
+                Configure integrations in{" "}
+                <Link href="/settings" className="text-primary hover:underline font-medium">
+                  Settings
+                </Link>
+              </p>
             </CardContent>
           </Card>
         </div>
