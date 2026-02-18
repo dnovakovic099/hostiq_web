@@ -251,11 +251,11 @@ export default function ReservationsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="border-border/40">
+      <Card>
         <CardContent className="pt-5 pb-5">
           <div className="flex items-center gap-2 mb-4">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground/60" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+            <Filter className="h-3.5 w-3.5 text-muted-foreground/50" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground/50">
               Filters
             </span>
           </div>
@@ -341,13 +341,13 @@ export default function ReservationsPage() {
       {viewMode === "list" ? (
         <>
           {loading ? (
-            <Card className="border-border/40">
-              <div className="p-8 space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
+            <Card>
+              <div className="p-6 space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-12 rounded-lg bg-muted/50 animate-pulse"
-                    style={{ animationDelay: `${i * 100}ms` }}
+                    className="h-14 skeleton"
+                    style={{ animationDelay: `${i * 80}ms` }}
                   />
                 ))}
               </div>

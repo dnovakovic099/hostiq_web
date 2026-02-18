@@ -28,6 +28,9 @@ import {
   DollarSign,
   TrendingUp,
   BedDouble,
+  ChevronRight,
+  Sparkles,
+  Star,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useSSE } from "@/hooks/use-sse";
@@ -117,14 +120,14 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Loading your data...</p>
+      <div className="space-y-8">
+        <div className="page-header">
+          <h1>Dashboard</h1>
+          <p>Loading your data...</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="h-32 rounded-xl bg-muted/50 animate-pulse" />
+            <div key={i} className="h-[120px] skeleton" style={{ animationDelay: `${i * 100}ms` }} />
           ))}
         </div>
       </div>
@@ -134,10 +137,18 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-destructive mt-2">{error}</p>
+        <div className="page-header">
+          <h1>Dashboard</h1>
         </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <AlertCircle className="h-8 w-8 text-destructive/40 mx-auto mb-3" />
+            <p className="text-destructive font-medium">{error}</p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={fetchData}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -146,18 +157,20 @@ export default function DashboardPage() {
     {
       label: "Check-ins Today",
       value: stats?.checkInsToday ?? 0,
-      sub: "Guests arriving today",
+      sub: "Arriving today",
       icon: ArrowDownRight,
       accent: "stat-accent-blue",
-      iconColor: "text-blue-500 bg-blue-50",
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
     },
     {
       label: "Check-outs Today",
       value: stats?.checkOutsToday ?? 0,
-      sub: "Guests departing today",
+      sub: "Departing today",
       icon: ArrowUpRight,
       accent: "stat-accent-amber",
-      iconColor: "text-amber-600 bg-amber-50",
+      iconBg: "bg-amber-500/10",
+      iconColor: "text-amber-600",
     },
     {
       label: "Active Guests",
@@ -165,41 +178,48 @@ export default function DashboardPage() {
       sub: "Currently staying",
       icon: Users,
       accent: "stat-accent-green",
-      iconColor: "text-emerald-600 bg-emerald-50",
+      iconBg: "bg-emerald-500/10",
+      iconColor: "text-emerald-600",
     },
     {
-      label: "Revenue This Month",
+      label: "Revenue",
       value: `$${(stats?.revenueThisMonth ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
-      sub: "Total from all properties",
+      sub: "This month",
       icon: DollarSign,
       accent: "stat-accent-indigo",
-      iconColor: "text-indigo-600 bg-indigo-50",
+      iconBg: "bg-indigo-500/10",
+      iconColor: "text-indigo-600",
     },
     {
-      label: "Occupancy Rate",
+      label: "Occupancy",
       value: `${stats?.occupancyRate ?? 0}%`,
-      sub: "Average across listings",
+      sub: "Avg across listings",
       icon: BedDouble,
       accent: "stat-accent-purple",
-      iconColor: "text-violet-600 bg-violet-50",
+      iconBg: "bg-violet-500/10",
+      iconColor: "text-violet-600",
     },
     {
-      label: "Avg Nightly Rate",
+      label: "Avg Rate",
       value: `$${(stats?.avgNightlyRate ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}`,
-      sub: "This month",
+      sub: "Per night",
       icon: TrendingUp,
       accent: "stat-accent-cyan",
-      iconColor: "text-cyan-600 bg-cyan-50",
+      iconBg: "bg-cyan-500/10",
+      iconColor: "text-cyan-600",
     },
     {
       label: "Open Issues",
       value: stats?.openIssuesCount ?? 0,
-      sub: "Requires attention",
+      sub: "Needs attention",
       icon: AlertTriangle,
       accent: "stat-accent-rose",
+      iconBg: (stats?.openIssuesCount ?? 0) > 0
+        ? "bg-rose-500/10"
+        : "bg-emerald-500/10",
       iconColor: (stats?.openIssuesCount ?? 0) > 0
-        ? "text-rose-600 bg-rose-50"
-        : "text-emerald-600 bg-emerald-50",
+        ? "text-rose-600"
+        : "text-emerald-600",
     },
   ];
 
@@ -207,50 +227,51 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-0.5">
-            Overview of your {properties.length} properties
+        <div className="page-header mb-0">
+          <h1>Dashboard</h1>
+          <p>
+            Overview of your {properties.length} propert{properties.length === 1 ? "y" : "ies"}
           </p>
         </div>
         <div className="flex gap-2">
           <Link href="/reservations">
             <Button variant="outline" size="sm">
-              <Calendar className="mr-1.5 h-3.5 w-3.5" />
+              <Calendar className="h-3.5 w-3.5" />
               Reservations
             </Button>
           </Link>
           <Link href="/issues">
             <Button variant="outline" size="sm">
-              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" />
+              <AlertTriangle className="h-3.5 w-3.5" />
               Issues
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Stat Cards Grid */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      {/* Stat Cards */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (
             <Card
               key={card.label}
               className={cn(
-                "stat-accent",
+                "stat-accent hover-lift",
                 card.accent,
-                i === 3 && "col-span-2 lg:col-span-1", // revenue gets extra width on small screens
+                i === 3 && "col-span-2 lg:col-span-1",
               )}
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               <CardContent className="p-4 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">{card.label}</span>
-                  <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", card.iconColor)}>
-                    <Icon className="h-4 w-4" />
+                  <span className="text-[11px] font-medium text-muted-foreground">{card.label}</span>
+                  <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", card.iconBg)}>
+                    <Icon className={cn("h-4 w-4", card.iconColor)} />
                   </div>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold tracking-tight">{card.value}</p>
+                  <p className="text-2xl font-semibold tracking-tight">{card.value}</p>
                   <p className="text-[11px] text-muted-foreground/60 mt-0.5">{card.sub}</p>
                 </div>
               </CardContent>
@@ -260,47 +281,50 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        {/* Recent Activity Timeline */}
+        {/* Recent Activity */}
         <Card className="lg:col-span-3">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Activity className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="flex items-center gap-2 text-[15px]">
+                  <Activity className="h-4 w-4 text-muted-foreground/60" />
                   Recent Activity
                 </CardTitle>
-                <CardDescription>Latest events across your properties</CardDescription>
+                <CardDescription className="mt-1">Latest events across your properties</CardDescription>
               </div>
-              <Badge variant="secondary" className="text-xs font-normal">
+              <Badge variant="secondary" className="font-normal gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Live
-                <span className="ml-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
             {activity.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">No recent activity</p>
+              <div className="py-12 text-center">
+                <Activity className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No recent activity</p>
+              </div>
             ) : (
-              <ul className="space-y-1">
+              <ul className="space-y-0.5">
                 {activity.map((item, i) => (
                   <li
                     key={`${item.type}-${item.id}`}
-                    className="flex gap-3 text-sm py-3 border-b border-border/40 last:border-0 animate-fade-in"
-                    style={{ animationDelay: `${i * 60}ms` }}
+                    className="flex gap-3 text-sm py-3 border-b border-border/20 last:border-0 animate-fade-in"
+                    style={{ animationDelay: `${i * 50}ms` }}
                   >
                     <span className="shrink-0 mt-0.5">
                       {item.type === "reservation" && (
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
                           <Calendar className="h-3.5 w-3.5" />
                         </span>
                       )}
                       {item.type === "message" && (
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-50 text-violet-500">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600">
                           <MessageSquare className="h-3.5 w-3.5" />
                         </span>
                       )}
                       {item.type === "issue" && (
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-50 text-rose-500">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
                           <AlertTriangle className="h-3.5 w-3.5" />
                         </span>
                       )}
@@ -309,7 +333,7 @@ export default function DashboardPage() {
                       <p className="font-medium text-[13px]">{item.title}</p>
                       <p className="text-muted-foreground text-xs truncate mt-0.5">{item.description}</p>
                     </div>
-                    <span className="text-[11px] text-muted-foreground shrink-0 mt-0.5">
+                    <span className="text-[11px] text-muted-foreground/50 shrink-0 mt-0.5">
                       {new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </li>
@@ -324,32 +348,31 @@ export default function DashboardPage() {
           {/* Integration Health */}
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Zap className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="flex items-center gap-2 text-[15px]">
+                <Zap className="h-4 w-4 text-muted-foreground/60" />
                 Integrations
               </CardTitle>
-              <CardDescription>Connected service status</CardDescription>
+              <CardDescription className="mt-1">Connected service status</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               {["hostify", "hostbuddy", "openphone"].map((name) => {
                 const status = getIntegrationStatus(name);
                 return (
-                  <div key={name} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
-                    <span className="text-sm font-medium capitalize">{name}</span>
-                    <Badge
-                      variant="secondary"
+                  <div key={name} className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <span className="text-[13px] font-medium capitalize">{name}</span>
+                    <span
                       className={cn(
-                        "text-[11px] font-medium gap-1",
-                        status === "healthy" && "bg-emerald-50 text-emerald-700 border-emerald-200",
-                        status === "degraded" && "bg-amber-50 text-amber-700 border-amber-200",
-                        status === "error" && "bg-rose-50 text-rose-700 border-rose-200"
+                        "inline-flex items-center gap-1.5 text-[11px] font-medium",
+                        status === "healthy" && "text-emerald-600",
+                        status === "degraded" && "text-amber-600",
+                        status === "error" && "text-rose-600"
                       )}
                     >
-                      {status === "healthy" && <CheckCircle2 className="h-3 w-3" />}
-                      {status === "degraded" && <AlertCircle className="h-3 w-3" />}
-                      {status === "error" && <XCircle className="h-3 w-3" />}
-                      {status}
-                    </Badge>
+                      {status === "healthy" && <CheckCircle2 className="h-3.5 w-3.5" />}
+                      {status === "degraded" && <AlertCircle className="h-3.5 w-3.5" />}
+                      {status === "error" && <XCircle className="h-3.5 w-3.5" />}
+                      {status === "healthy" ? "Connected" : status === "error" ? "Error" : "Pending"}
+                    </span>
                   </div>
                 );
               })}
@@ -359,33 +382,30 @@ export default function DashboardPage() {
           {/* Quick Actions */}
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-base">Quick Actions</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-[15px]">
+                <Sparkles className="h-4 w-4 text-muted-foreground/60" />
+                Quick Actions
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
-              <Link href="/reservations" className="block">
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
-                  <Home className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-xs font-medium">Properties</span>
-                </div>
-              </Link>
-              <Link href="/messages" className="block">
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-xs font-medium">Messages</span>
-                </div>
-              </Link>
-              <Link href="/reviews" className="block">
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
-                  <Activity className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-xs font-medium">Reviews</span>
-                </div>
-              </Link>
-              <Link href="/issues" className="block">
-                <div className="flex flex-col items-center gap-2 p-4 rounded-lg bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer text-center">
-                  <AlertTriangle className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-xs font-medium">Issues</span>
-                </div>
-              </Link>
+              {[
+                { href: "/reservations", icon: Home, label: "Properties", color: "text-blue-600 bg-blue-500/10" },
+                { href: "/messages", icon: MessageSquare, label: "Messages", color: "text-violet-600 bg-violet-500/10" },
+                { href: "/reviews", icon: Star, label: "Reviews", color: "text-amber-600 bg-amber-500/10" },
+                { href: "/issues", icon: AlertTriangle, label: "Issues", color: "text-rose-600 bg-rose-500/10" },
+              ].map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={action.href} href={action.href} className="block group">
+                    <div className="flex flex-col items-center gap-2.5 p-4 rounded-xl bg-muted/30 hover:bg-muted/60 transition-all duration-200 cursor-pointer text-center group-hover:shadow-sm">
+                      <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", action.color)}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">{action.label}</span>
+                    </div>
+                  </Link>
+                );
+              })}
             </CardContent>
           </Card>
         </div>
