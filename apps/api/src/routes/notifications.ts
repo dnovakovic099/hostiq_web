@@ -135,12 +135,10 @@ notifications.post("/send", requireRole("ADMIN" as UserRole), async (c) => {
     created.push({ id: record.id, channel });
 
     if (channel === "email") {
-      // TODO: Call Resend to send email
-      console.log(`[Notifications] TODO: Send email via Resend to user ${userId}: ${title}`);
+      // TODO: Send email via Resend
     }
     if (channel === "sms") {
-      // TODO: Call OpenPhone to send SMS
-      console.log(`[Notifications] TODO: Send SMS via OpenPhone to user ${userId}: ${title}`);
+      // TODO: Send SMS via OpenPhone
     }
   }
 

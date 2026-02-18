@@ -336,6 +336,7 @@ export default function ReservationsPage() {
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border border-border/60 bg-card p-0.5">
             <button
+              type="button"
               onClick={() => setViewMode("list")}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
@@ -348,6 +349,7 @@ export default function ReservationsPage() {
               List
             </button>
             <button
+              type="button"
               onClick={() => setViewMode("calendar")}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
@@ -824,6 +826,7 @@ export default function ReservationsPage() {
                           }
                           return (
                             <button
+                              type="button"
                               key={pageNum}
                               onClick={() =>
                                 setFilters((f) => ({ ...f, page: pageNum }))
@@ -970,6 +973,7 @@ export default function ReservationsPage() {
                           <div className="space-y-1.5">
                             {dayReservations.slice(0, 3).map((reservation) => (
                               <button
+                                type="button"
                                 key={`${dayKey}-${reservation.id}`}
                                 className={cn(
                                   "w-full rounded-md px-2 py-1 text-left text-[11px] font-medium transition-colors",

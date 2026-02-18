@@ -320,8 +320,7 @@ auth.post("/invite", requireAuth(), async (c) => {
     },
   });
 
-  // TODO: Send invite email via Resend
-  console.log(`[Auth] Invite sent to ${email} with token: ${token}`);
+  // TODO: Send invite email via Resend (sendInvite util, similar to sendPasswordReset)
 
   await logAudit(authUser.userId, "send_invite", "invite", invite.id, { email, role }, c.req.header("x-forwarded-for"));
 

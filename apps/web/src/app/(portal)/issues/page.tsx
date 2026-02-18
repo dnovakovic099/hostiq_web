@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -96,6 +96,7 @@ export default function IssuesPage() {
     resolutionNotes: "",
   });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const fetchIssues = useCallback(async () => {
     try {
@@ -157,6 +158,7 @@ export default function IssuesPage() {
   const saveResolution = async (issueId: string) => {
     if (!resolutionForm.status) return;
     setSaving(true);
+    setSaveError(null);
     try {
       await api.put(`/issues/${issueId}`, {
         status: resolutionForm.status,
@@ -166,8 +168,8 @@ export default function IssuesPage() {
       setExpandedId(null);
       setResolutionForm({ status: "" as IssueStatus, resolutionNotes: "" });
       fetchIssues();
-    } catch {
-      // Error
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Failed to save resolution. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -355,9 +357,8 @@ export default function IssuesPage() {
                   </thead>
                   <tbody>
                     {issues.map((i) => (
-                      <>
+                      <React.Fragment key={i.id}>
                         <tr
-                          key={i.id}
                           className="border-b hover:bg-muted/50 cursor-pointer"
                           onClick={() => toggleExpand(i.id)}
                         >
@@ -384,7 +385,7 @@ export default function IssuesPage() {
                           </td>
                         </tr>
                         {expandedId === i.id && (
-                          <tr key={`${i.id}-detail`}>
+                          <tr>
                             <td colSpan={9} className="p-0 bg-muted/30">
                               <div className="p-6">
                                 <div className="grid gap-6 md:grid-cols-2 mb-6">
@@ -457,11 +458,14 @@ export default function IssuesPage() {
                                         placeholder="Add resolution notes..."
                                       />
                                     </div>
+                                    {saveError && (
+                                      <p className="text-sm text-destructive">{saveError}</p>
+                                    )}
                                     <Button
                                       onClick={() => saveResolution(i.id)}
                                       disabled={saving || !resolutionForm.status}
                                     >
-                                      Save
+                                      {saving ? "Saving..." : "Save"}
                                     </Button>
                                   </div>
                                 </div>
@@ -469,7 +473,7 @@ export default function IssuesPage() {
                             </td>
                           </tr>
                         )}
-                      </>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>

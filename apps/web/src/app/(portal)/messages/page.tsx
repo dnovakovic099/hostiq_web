@@ -55,6 +55,7 @@ export default function MessagesPage() {
   const [error, setError] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState({
     propertyId: "",
@@ -116,6 +117,7 @@ export default function MessagesPage() {
   const sendReply = async () => {
     if (!selectedThread || !replyText.trim()) return;
     setSending(true);
+    setReplyError(null);
     try {
       await api.post<{ success: boolean; data: Message }>(
         `/messages/threads/${selectedThread.id}/messages`,
@@ -124,8 +126,8 @@ export default function MessagesPage() {
       setReplyText("");
       fetchThreadDetail(selectedThread.id);
       fetchThreads();
-    } catch {
-      // Error handled by UI
+    } catch (err) {
+      setReplyError(err instanceof Error ? err.message : "Failed to send message. Please try again.");
     } finally {
       setSending(false);
     }
@@ -327,11 +329,14 @@ export default function MessagesPage() {
                   })
                 )}
               </CardContent>
-              <div className="p-4 border-t">
+              <div className="p-4 border-t space-y-2">
+                {replyError && (
+                  <p className="text-sm text-destructive">{replyError}</p>
+                )}
                 <div className="flex gap-2">
                   <textarea
                     className="flex-1 min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm resize-none"
-                    placeholder="Type your reply..."
+                    placeholder="Type your reply... (Enter to send, Shift+Enter for new line)"
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     onKeyDown={(e) => {
@@ -343,7 +348,7 @@ export default function MessagesPage() {
                   />
                   <Button onClick={sendReply} disabled={!replyText.trim() || sending}>
                     <Send className="h-4 w-4" />
-                    Send
+                    {sending ? "Sending..." : "Send"}
                   </Button>
                 </div>
               </div>

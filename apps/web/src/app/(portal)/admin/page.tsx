@@ -63,6 +63,7 @@ export default function AdminPage() {
   });
   const [inviting, setInviting] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   const [syncing, setSyncing] = useState<string | null>(null);
 
@@ -95,6 +96,7 @@ export default function AdminPage() {
     if (!inviteForm.email) return;
     setInviting(true);
     setInviteSuccess(false);
+    setInviteError(null);
     try {
       await api.post("/auth/invite", {
         email: inviteForm.email,
@@ -104,8 +106,8 @@ export default function AdminPage() {
       setInviteSuccess(true);
       setInviteForm({ email: "", role: "CLEANER", propertyIds: [] });
       fetchData();
-    } catch {
-      // Error
+    } catch (err) {
+      setInviteError(err instanceof Error ? err.message : "Failed to send invite. Please try again.");
     } finally {
       setInviting(false);
     }
@@ -289,6 +291,9 @@ export default function AdminPage() {
             </div>
             {inviteSuccess && (
               <p className="text-green-600 text-sm">Invite sent successfully</p>
+            )}
+            {inviteError && (
+              <p className="text-destructive text-sm">{inviteError}</p>
             )}
             <Button onClick={sendInvite} disabled={!inviteForm.email || inviting}>
               Send invite
