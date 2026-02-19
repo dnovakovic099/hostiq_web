@@ -92,17 +92,13 @@ export default function CleanersPage() {
         api.get<{ success: true; data: { items: CleaningTask[]; pagination: unknown } }>(
           `/cleaning?startDate=${startDate}&endDate=${endDateStr}&pageSize=50`
         ),
-        api.get<{ success: true; data: Cleaner[] }>("/admin/users"),
+        api.get<{ success: true; data: Cleaner[] }>("/cleaning/cleaners"),
         api.get<{ success: true; data: Property[] }>("/properties"),
       ]);
 
       setUpcomingCleanings(cleaningsRes.data.items || []);
       
-      // Filter cleaners by role
-      const cleanerUsers = (cleanersRes.data || []).filter(
-        (u) => u.role === "CLEANER"
-      );
-      setCleaners(cleanerUsers);
+      setCleaners(cleanersRes.data || []);
       
       setProperties(propertiesRes.data || []);
     } catch (err) {

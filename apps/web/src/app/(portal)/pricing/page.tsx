@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Calendar, DollarSign, Lock, Zap } from "lucide-react";
+import { AlertTriangle, Calendar, DollarSign, Lock, Zap } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth-store";
 
@@ -38,35 +38,27 @@ interface CalendarDay {
   locked: boolean;
 }
 
-const MOCK_PRICING: Record<string, PropertyPricing> = {
-  default: {
-    baseRate: 150,
-    weekendRate: 185,
-    cleaningFee: 95,
-    extraGuestFee: 35,
-    dynamicPricingEnabled: true,
-    minPrice: 120,
-    maxPrice: 250,
-  },
+const DEFAULT_PRICING: PropertyPricing = {
+  baseRate: 0,
+  weekendRate: 0,
+  cleaningFee: 0,
+  extraGuestFee: 0,
+  dynamicPricingEnabled: false,
+  minPrice: 0,
+  maxPrice: 0,
 };
 
 const FREE_DAYS_LIMIT = 7;
 
-function generateCalendarDays(propertyId: string, isSubscribed: boolean): CalendarDay[] {
+function generateCalendarDays(isSubscribed: boolean): CalendarDay[] {
   const days: CalendarDay[] = [];
   const today = new Date();
   for (let i = 0; i < 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const dateStr = d.toISOString().slice(0, 10);
-    const dayOfWeek = d.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const base = MOCK_PRICING[propertyId] ?? MOCK_PRICING.default;
-    const price = isWeekend ? base.weekendRate : base.baseRate;
-    const status: CalendarDay["status"] =
-      i % 7 === 2 ? "booked" : i % 11 === 5 ? "blocked" : "available";
     const locked = !isSubscribed && i >= FREE_DAYS_LIMIT;
-    days.push({ date: dateStr, price, status, locked });
+    days.push({ date: dateStr, price: 0, status: "available", locked });
   }
   return days;
 }
@@ -80,7 +72,7 @@ function addDays(date: Date, days: number): string {
 export default function PricingPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
-  const [pricing, setPricing] = useState<PropertyPricing>(MOCK_PRICING.default);
+  const [pricing, setPricing] = useState<PropertyPricing>(DEFAULT_PRICING);
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [priceAdjustment, setPriceAdjustment] = useState({
@@ -103,21 +95,9 @@ export default function PricingPage() {
       setProperties(items);
       if (items.length > 0 && !selectedPropertyId) {
         setSelectedPropertyId(items[0].id);
-      } else if (items.length === 0) {
-        const mockProps: Property[] = [
-          { id: "mock-1", name: "Sunset Villa" },
-          { id: "mock-2", name: "Beach House" },
-        ];
-        setProperties(mockProps);
-        setSelectedPropertyId("mock-1");
       }
     } catch {
-      const mockProps: Property[] = [
-        { id: "mock-1", name: "Sunset Villa" },
-        { id: "mock-2", name: "Beach House" },
-      ];
-      setProperties(mockProps);
-      setSelectedPropertyId("mock-1");
+      setProperties([]);
     } finally {
       setLoading(false);
     }
@@ -129,9 +109,8 @@ export default function PricingPage() {
 
   useEffect(() => {
     if (selectedPropertyId) {
-      const p = MOCK_PRICING[selectedPropertyId] ?? MOCK_PRICING.default;
-      setPricing(p);
-      setCalendarDays(generateCalendarDays(selectedPropertyId, isSubscribed));
+      setPricing(DEFAULT_PRICING);
+      setCalendarDays(generateCalendarDays(isSubscribed));
     }
   }, [selectedPropertyId, isSubscribed]);
 
@@ -185,6 +164,14 @@ export default function PricingPage() {
       <div className="page-header">
         <h1>Pricing</h1>
         <p>Manage pricing and availability across your properties</p>
+      </div>
+
+      <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+        <AlertTriangle className="h-4 w-4 shrink-0" />
+        <span>
+          Pricing data is not yet synced from your PMS. Rates shown are placeholders.
+          Availability and real-time pricing integration is coming soon.
+        </span>
       </div>
 
       {/* Free-tier notice */}

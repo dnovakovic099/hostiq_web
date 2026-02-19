@@ -8,7 +8,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DollarSign, TrendingUp, TrendingDown } from "lucide-react";
 import { api } from "@/lib/api";
@@ -22,6 +21,7 @@ interface Reservation {
   id: string;
   propertyId: string;
   channel: string | null;
+  status: string;
   checkIn: string;
   checkOut: string;
   nights: number;
@@ -69,13 +69,6 @@ interface MonthlyRevenue {
   revenue: number;
 }
 
-interface Payout {
-  id: string;
-  date: string;
-  amount: number;
-  properties: string[];
-  status: "completed" | "pending" | "processing";
-}
 
 function getMonthKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -108,7 +101,10 @@ function computeRevenueFromReservations(
   const byChannelMap: Record<string, number> = {};
   const monthlyMap: Record<string, number> = {};
 
+  const EXCLUDED_STATUSES = new Set(["CANCELLED", "INQUIRY"]);
+
   for (const r of reservations) {
+    if (EXCLUDED_STATUSES.has(r.status)) continue;
     const total = r.total ?? 0;
     totalAllTime += total;
 
@@ -195,30 +191,6 @@ function computeRevenueFromReservations(
     monthlyTrend: months,
   };
 }
-
-const MOCK_PAYOUTS: Payout[] = [
-  {
-    id: "1",
-    date: new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10),
-    amount: 12450,
-    properties: ["Sunset Villa", "Beach House"],
-    status: "completed",
-  },
-  {
-    id: "2",
-    date: new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10),
-    amount: 8920,
-    properties: ["Sunset Villa", "Beach House", "Mountain Retreat"],
-    status: "completed",
-  },
-  {
-    id: "3",
-    date: new Date().toISOString().slice(0, 10),
-    amount: 15600,
-    properties: ["Sunset Villa", "Beach House"],
-    status: "processing",
-  },
-];
 
 const PROPERTY_PAGE_SIZE = 10;
 
@@ -545,43 +517,14 @@ export default function RevenuePage() {
           <CardDescription>Recent payouts to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="premium-table">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4 font-medium">Date</th>
-                  <th className="text-right p-4 font-medium">Amount</th>
-                  <th className="text-left p-4 font-medium">Properties</th>
-                  <th className="text-left p-4 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_PAYOUTS.map((p) => (
-                  <tr key={p.id} className="border-b">
-                    <td className="p-4">{new Date(p.date).toLocaleDateString()}</td>
-                    <td className="p-4 text-right font-medium">
-                      ${p.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="p-4 text-muted-foreground">
-                      {p.properties.join(", ")}
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant={
-                          p.status === "completed"
-                            ? "default"
-                            : p.status === "processing"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {p.status}
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="py-12 text-center">
+            <DollarSign className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm font-medium text-muted-foreground">
+              Payout tracking coming soon
+            </p>
+            <p className="text-xs text-muted-foreground/60 mt-1">
+              Payout data will be synced from your PMS once available
+            </p>
           </div>
         </CardContent>
       </Card>

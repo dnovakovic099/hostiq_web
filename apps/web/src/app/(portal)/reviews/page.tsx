@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { Star, Send, Sparkles, Loader2 } from "lucide-react";
+import { Star, Copy, Check, Sparkles, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 
 interface Property {
@@ -62,7 +62,7 @@ export default function ReviewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [responseDrafts, setResponseDrafts] = useState<Record<string, string>>({});
   const [aiGeneratingId, setAiGeneratingId] = useState<string | null>(null);
-  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [aiErrors, setAiErrors] = useState<Record<string, string>>({});
 
   const fetchProperties = useCallback(async () => {
@@ -97,8 +97,6 @@ export default function ReviewsPage() {
     setLoading(true);
     Promise.all([fetchProperties(), fetchReviews()]).finally(() => setLoading(false));
   }, [fetchProperties, fetchReviews]);
-
-  const filteredReviews = reviews;
 
   const stats = {
     avgRating:
@@ -150,39 +148,28 @@ export default function ReviewsPage() {
         ...e,
         [reviewId]: "Failed to generate AI response. Please try again or write your own response.",
       }));
-      // Fallback to generic response
-      const genericResponse =
-        "Thank you for your feedback! We're glad you enjoyed your stay. We appreciate you taking the time to share your experience. We hope to welcome you back soon!";
-      setResponseDrafts((d) => ({ ...d, [reviewId]: genericResponse }));
     } finally {
       setAiGeneratingId(null);
     }
   };
 
-  const sendResponse = async (reviewId: string) => {
+  const copyResponse = async (reviewId: string) => {
     const draft = responseDrafts[reviewId];
     if (!draft?.trim()) return;
-    setSendingId(reviewId);
     try {
-      await new Promise((r) => setTimeout(r, 500));
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === reviewId
-            ? {
-                ...r,
-                response: draft,
-                respondedAt: new Date().toISOString(),
-              }
-            : r
-        )
-      );
-      setResponseDrafts((d) => {
-        const next = { ...d };
-        delete next[reviewId];
-        return next;
-      });
-    } finally {
-      setSendingId(null);
+      await navigator.clipboard.writeText(draft);
+      setCopiedId(reviewId);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement("textarea");
+      textarea.value = draft;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopiedId(reviewId);
+      setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
@@ -333,12 +320,12 @@ export default function ReviewsPage() {
         <CardHeader>
           <CardTitle>Reviews</CardTitle>
           <CardDescription>
-            {filteredReviews.length} review{filteredReviews.length !== 1 ? "s" : ""} found
+            {reviews.length} review{reviews.length !== 1 ? "s" : ""} found
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {filteredReviews.map((review) => (
+            {reviews.map((review) => (
               <div
                 key={review.id}
                 className="border-b pb-6 last:border-0 last:pb-0"
@@ -413,17 +400,19 @@ export default function ReviewsPage() {
                             </Button>
                             <Button
                               size="sm"
-                              onClick={() => sendResponse(review.id)}
-                              disabled={
-                                !responseDrafts[review.id]?.trim() || !!sendingId
-                              }
+                              variant={copiedId === review.id ? "outline" : "default"}
+                              onClick={() => copyResponse(review.id)}
+                              disabled={!responseDrafts[review.id]?.trim()}
                             >
-                              {sendingId === review.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                              {copiedId === review.id ? (
+                                <>
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Copied!
+                                </>
                               ) : (
                                 <>
-                                  <Send className="h-4 w-4 mr-1" />
-                                  Send
+                                  <Copy className="h-4 w-4 mr-1" />
+                                  Copy Response
                                 </>
                               )}
                             </Button>
@@ -435,7 +424,7 @@ export default function ReviewsPage() {
                 </div>
               </div>
             ))}
-            {filteredReviews.length === 0 && (
+            {reviews.length === 0 && (
               <div className="py-12 text-center">
                 <Star className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No reviews match your filters</p>

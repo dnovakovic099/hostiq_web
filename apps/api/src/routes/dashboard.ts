@@ -41,14 +41,14 @@ dashboard.get("/stats", async (c) => {
     prisma.reservation.count({
       where: {
         property: filter,
-        status: { notIn: ["CANCELLED"] },
+        status: { notIn: ["CANCELLED", "INQUIRY"] },
         checkIn: { gte: today, lt: tomorrow },
       },
     }),
     prisma.reservation.count({
       where: {
         property: filter,
-        status: { notIn: ["CANCELLED"] },
+        status: { notIn: ["CANCELLED", "INQUIRY"] },
         checkOut: { gte: today, lt: tomorrow },
       },
     }),
@@ -84,7 +84,7 @@ dashboard.get("/stats", async (c) => {
     .findMany({
       where: {
         property: filter,
-        status: { notIn: ["CANCELLED"] },
+        status: { notIn: ["CANCELLED", "INQUIRY", "PRE_APPROVED"] },
         checkIn: { gte: monthStart, lte: monthEnd },
       },
       select: { nights: true },

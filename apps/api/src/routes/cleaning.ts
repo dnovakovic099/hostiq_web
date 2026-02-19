@@ -150,6 +150,25 @@ cleaning.get("/schedule", async (c) => {
 });
 
 // ============================================
+// GET /cleaners - List users with CLEANER role (any authenticated user)
+// ============================================
+cleaning.get("/cleaners", async (c) => {
+  const cleaners = await prisma.user.findMany({
+    where: { role: "CLEANER" },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      role: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return c.json({ success: true, data: cleaners });
+});
+
+// ============================================
 // PUT /assign - Must be before /:id
 // ============================================
 cleaning.put("/assign", requireAnyRole("OWNER" as UserRole, "ADMIN" as UserRole, "INTERNAL_OPS" as UserRole), async (c) => {

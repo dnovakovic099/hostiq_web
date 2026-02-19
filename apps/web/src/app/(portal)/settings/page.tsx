@@ -302,7 +302,7 @@ export default function SettingsPage() {
             <Bell className="h-5 w-5" />
             Notification Preferences
           </CardTitle>
-          <CardDescription>Choose how you want to be notified</CardDescription>
+          <CardDescription>Choose how you want to be notified (saved locally — server sync coming soon)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
