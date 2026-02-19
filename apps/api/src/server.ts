@@ -17,6 +17,7 @@ import aiRoutes from "./routes/ai";
 import cleaningRoutes from "./routes/cleaning";
 import notificationsRoutes from "./routes/notifications";
 import reportsRoutes from "./routes/reports";
+import reviewsRoutes from "./routes/reviews";
 import { registerEventHandlers } from "./events";
 import { registerSSEBridge } from "./events/sse-bridge";
 import { startScheduler } from "./workers/scheduler";
@@ -62,6 +63,7 @@ api.route("/ai", aiRoutes);
 api.route("/cleaning", cleaningRoutes);
 api.route("/notifications", notificationsRoutes);
 api.route("/reports", reportsRoutes);
+api.route("/reviews", reviewsRoutes);
 
 app.route("/api", api);
 

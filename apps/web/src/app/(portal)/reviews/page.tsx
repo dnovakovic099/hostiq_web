@@ -33,54 +33,6 @@ interface Review {
   respondedAt: string | null;
 }
 
-// Sample data - fallback when no reviews API endpoint is available yet
-const INITIAL_REVIEWS: Review[] = [
-  {
-    id: "1",
-    guestName: "Sarah M.",
-    rating: 5,
-    text: "Absolutely wonderful stay! The property was spotless and the views were incredible. Would definitely book again.",
-    date: new Date(Date.now() - 3 * 86400000).toISOString(),
-    propertyId: "1",
-    propertyName: "Sunset Villa",
-    response: "Thank you so much, Sarah! We're thrilled you enjoyed your stay. We'd love to host you again!",
-    respondedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-  },
-  {
-    id: "2",
-    guestName: "James K.",
-    rating: 4,
-    text: "Great location and clean. The only minor issue was the WiFi was a bit slow in the evenings.",
-    date: new Date(Date.now() - 5 * 86400000).toISOString(),
-    propertyId: "1",
-    propertyName: "Sunset Villa",
-    response: null,
-    respondedAt: null,
-  },
-  {
-    id: "3",
-    guestName: "Emily R.",
-    rating: 5,
-    text: "Perfect getaway! Everything was as described. The host was very responsive.",
-    date: new Date(Date.now() - 7 * 86400000).toISOString(),
-    propertyId: "2",
-    propertyName: "Beach House",
-    response: "Thank you, Emily! So glad you had a great time. Come back soon!",
-    respondedAt: new Date(Date.now() - 6 * 86400000).toISOString(),
-  },
-  {
-    id: "4",
-    guestName: "Michael T.",
-    rating: 3,
-    text: "Decent place but the check-in instructions were confusing. Had to call support.",
-    date: new Date(Date.now() - 10 * 86400000).toISOString(),
-    propertyId: "2",
-    propertyName: "Beach House",
-    response: null,
-    respondedAt: null,
-  },
-];
-
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
@@ -99,7 +51,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function ReviewsPage() {
   const [properties, setProperties] = useState<Property[]>([]);
-  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [filters, setFilters] = useState({
     propertyId: "",
     rating: "" as string,
@@ -107,6 +59,7 @@ export default function ReviewsPage() {
     endDate: "",
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [responseDrafts, setResponseDrafts] = useState<Record<string, string>>({});
   const [aiGeneratingId, setAiGeneratingId] = useState<string | null>(null);
   const [sendingId, setSendingId] = useState<string | null>(null);
@@ -118,22 +71,34 @@ export default function ReviewsPage() {
       setProperties(res.data ?? []);
     } catch {
       setProperties([]);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+  const fetchReviews = useCallback(async () => {
+    try {
+      setError(null);
+      const params = new URLSearchParams();
+      if (filters.propertyId) params.set("propertyId", filters.propertyId);
+      if (filters.rating) params.set("rating", filters.rating);
+      if (filters.startDate) params.set("startDate", filters.startDate);
+      if (filters.endDate) params.set("endDate", filters.endDate);
 
-  const filteredReviews = reviews.filter((r) => {
-    if (filters.propertyId && r.propertyId !== filters.propertyId) return false;
-    if (filters.rating && r.rating !== Number(filters.rating)) return false;
-    if (filters.startDate && new Date(r.date) < new Date(filters.startDate)) return false;
-    if (filters.endDate && new Date(r.date) > new Date(filters.endDate)) return false;
-    return true;
-  });
+      const res = await api.get<{ success: boolean; data: { items: Review[] } }>(
+        `/reviews?${params.toString()}`
+      );
+      setReviews(res.data.items ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load reviews");
+      setReviews([]);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchProperties(), fetchReviews()]).finally(() => setLoading(false));
+  }, [fetchProperties, fetchReviews]);
+
+  const filteredReviews = reviews;
 
   const stats = {
     avgRating:
@@ -245,6 +210,22 @@ export default function ReviewsPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="page-header">
+          <h1>Reviews</h1>
+          <p>Manage guest reviews and AI-powered responses</p>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-destructive text-sm">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="page-header">
@@ -310,15 +291,6 @@ export default function ReviewsPage() {
                     {p.name}
                   </option>
                 ))}
-                {properties.length === 0 &&
-                  [...new Set(reviews.map((r) => r.propertyId))].map((pid) => {
-                    const r = reviews.find((x) => x.propertyId === pid);
-                    return (
-                      <option key={pid} value={pid}>
-                        {r?.propertyName ?? pid}
-                      </option>
-                    );
-                  })}
               </select>
             </div>
             <div className="min-w-[140px]">
