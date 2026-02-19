@@ -155,7 +155,7 @@ webhooks.post("/hostbuddy", async (c) => {
     .digest("hex")
     .slice(0, 16);
 
-  // Idempotency: check if we've already processed this exact payload
+  // Detect duplicates, but still persist every delivery for schema forensics.
   const existing = await prisma.hostbuddyWebhookLog.findFirst({
     where: {
       rawPayload: {
@@ -164,11 +164,7 @@ webhooks.post("/hostbuddy", async (c) => {
       },
     },
   });
-
-  if (existing) {
-    console.log(`[Webhook:HostBuddy] Duplicate payload ${payloadHash}, skipping`);
-    return c.json({ success: true, duplicate: true });
-  }
+  const isDuplicate = Boolean(existing);
 
   // Store raw payload
   const log = await prisma.hostbuddyWebhookLog.create({
@@ -183,6 +179,11 @@ webhooks.post("/hostbuddy", async (c) => {
     `[Webhook:HostBuddy] Received action item (log ${log.id}):`,
     JSON.stringify(payload).slice(0, 300)
   );
+  // Keep exact inbound body in logs for webhook schema inspection in Railway.
+  console.log(`[Webhook:HostBuddy] Raw payload ${payloadHash}: ${body}`);
+  if (isDuplicate) {
+    console.log(`[Webhook:HostBuddy] Duplicate payload ${payloadHash} stored as log ${log.id}`);
+  }
 
   // For now, store-only mode: capture raw payloads for schema discovery.
   // Parsing and issue creation will be implemented after reviewing real events.
@@ -206,8 +207,9 @@ webhooks.post("/hostbuddy", async (c) => {
       eventPayload: {
         webhook_log_id: log.id,
         payload_hash: payloadHash,
+        duplicate: isDuplicate,
       } as any,
-      outcome: "stored_raw",
+      outcome: isDuplicate ? "stored_raw_duplicate" : "stored_raw",
       confidence: 1.0,
     },
   });
@@ -216,7 +218,7 @@ webhooks.post("/hostbuddy", async (c) => {
     `[Webhook:HostBuddy] Stored raw payload ${payloadHash} in log ${log.id} (parsing deferred)`
   );
 
-  return c.json({ success: true });
+  return c.json({ success: true, duplicate: isDuplicate });
 });
 
 // ============================================
