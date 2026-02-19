@@ -29,6 +29,19 @@ interface Reservation {
   property: { id: string; name: string };
 }
 
+interface ReservationsListResponse {
+  success: boolean;
+  data: {
+    items: Reservation[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
 interface ReservationStats {
   totalCount: number;
   totalRevenue: number;
@@ -141,7 +154,7 @@ function computeRevenueFromReservations(
         : data.thisMonth > 0
           ? 100
           : 0;
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const occupancyPct = Math.min(
       100,
       Math.round((data.nights / daysInMonth) * 100)
@@ -225,17 +238,35 @@ export default function RevenuePage() {
       const startDate = sixMonthsAgo.toISOString().slice(0, 10);
       const endDate = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
-      const [statsRes, propsRes, resRes] = await Promise.all([
+      const [statsRes, propsRes, firstPageRes] = await Promise.all([
         api.get<{ success: boolean; data: ReservationStats }>("/reservations/stats").catch(() => null),
         api.get<{ success: boolean; data: Property[] }>("/properties"),
-        api.get<{ success: boolean; data: { items: Reservation[] } }>(
-          `/reservations?startDate=${startDate}&endDate=${endDate}&pageSize=200`
+        api.get<ReservationsListResponse>(
+          `/reservations?startDate=${startDate}&endDate=${endDate}&page=1&pageSize=500`
         ),
       ]);
 
+      let allReservations = firstPageRes.data.items ?? [];
+      const totalPages = firstPageRes.data.pagination?.totalPages ?? 1;
+
+      if (totalPages > 1) {
+        const remainingPages = Array.from({ length: totalPages - 1 }, (_, idx) => idx + 2);
+        const pageResponses = await Promise.all(
+          remainingPages.map((page) =>
+            api.get<ReservationsListResponse>(
+              `/reservations?startDate=${startDate}&endDate=${endDate}&page=${page}&pageSize=500`
+            )
+          )
+        );
+        allReservations = [
+          ...allReservations,
+          ...pageResponses.flatMap((res) => res.data.items ?? []),
+        ];
+      }
+
       setStats(statsRes?.data ?? null);
       setProperties(propsRes.data ?? []);
-      setReservations(resRes.data.items ?? []);
+      setReservations(allReservations);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load revenue data");
     } finally {

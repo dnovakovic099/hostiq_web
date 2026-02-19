@@ -76,9 +76,6 @@ interface Pagination {
 
 const CONFIRMED_STATUSES = new Set<ReservationStatus>([
   "ACCEPTED",
-  "PRE_APPROVED",
-  "MOVED",
-  "EXTENDED",
   "COMPLETED",
 ]);
 
