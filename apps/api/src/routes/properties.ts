@@ -32,11 +32,21 @@ properties.get("/", async (c) => {
           cleaningTasks: true,
         },
       },
+      listingsSnapshots: {
+        orderBy: { snapshotDate: "desc" },
+        take: 1,
+        select: { photosMeta: true },
+      },
     },
     orderBy: { name: "asc" },
   });
 
-  return c.json({ success: true, data: items });
+  const result = items.map(({ listingsSnapshots, ...rest }) => ({
+    ...rest,
+    photosMeta: listingsSnapshots[0]?.photosMeta ?? null,
+  }));
+
+  return c.json({ success: true, data: result });
 });
 
 // ============================================
