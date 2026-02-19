@@ -74,6 +74,14 @@ interface Pagination {
   totalPages: number;
 }
 
+const CONFIRMED_STATUSES = new Set<ReservationStatus>([
+  "ACCEPTED",
+  "PRE_APPROVED",
+  "MOVED",
+  "EXTENDED",
+  "COMPLETED",
+]);
+
 const STATUS_OPTIONS: { value: ReservationStatus | ""; label: string }[] = [
   { value: "", label: "All statuses" },
   { value: "ACCEPTED", label: "Accepted" },
@@ -191,8 +199,18 @@ export default function ReservationsPage() {
       const params = new URLSearchParams();
       if (filters.propertyId) params.set("propertyId", filters.propertyId);
       if (filters.status) params.set("status", filters.status);
-      if (filters.startDate) params.set("startDate", filters.startDate);
-      if (filters.endDate) params.set("endDate", filters.endDate);
+
+      if (viewMode === "calendar") {
+        // Use the visible calendar month as the date range so we fetch the right reservations
+        const monthStart = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1);
+        const monthEnd = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0);
+        params.set("startDate", monthStart.toISOString().slice(0, 10));
+        params.set("endDate", monthEnd.toISOString().slice(0, 10));
+      } else {
+        if (filters.startDate) params.set("startDate", filters.startDate);
+        if (filters.endDate) params.set("endDate", filters.endDate);
+      }
+
       if (filters.search) params.set("search", filters.search);
       params.set("page", String(filters.page));
       params.set("pageSize", String(viewMode === "calendar" ? 200 : filters.pageSize));
@@ -208,7 +226,7 @@ export default function ReservationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, viewMode]);
+  }, [filters, viewMode, calendarMonth]);
 
   const fetchProperties = useCallback(async () => {
     try {
@@ -296,6 +314,7 @@ export default function ReservationsPage() {
 
     const reservationsByDay: Record<string, Reservation[]> = {};
     for (const reservation of reservations) {
+      if (!CONFIRMED_STATUSES.has(reservation.status)) continue;
       const checkIn = startOfDay(new Date(reservation.checkIn));
       const checkOut = startOfDay(new Date(reservation.checkOut));
       if (Number.isNaN(checkIn.getTime()) || Number.isNaN(checkOut.getTime())) continue;
