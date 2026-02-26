@@ -2,6 +2,7 @@ import { syncListings } from "./sync-listings";
 import { syncReservations } from "./sync-reservations";
 import { syncMessages } from "./sync-messages";
 import { syncReviews } from "./sync-reviews";
+import { registerHostifyWebhooks } from "./register-webhooks";
 import { prisma } from "@hostiq/db";
 
 const INTEGRATION = "hostify";
@@ -90,6 +91,9 @@ export function startScheduler(): void {
   reviewsTimer = setInterval(() => {
     runWithLogging("syncReviews", syncReviews).catch(() => {});
   }, INTERVALS.reviews);
+
+  // Register Hostify webhooks on startup (one-time, idempotent)
+  runWithLogging("registerHostifyWebhooks", registerHostifyWebhooks).catch(() => {});
 
   console.log(
     "[Scheduler] Intervals: listings=60min, reservations=5min, messages=5min, reviews=30min"

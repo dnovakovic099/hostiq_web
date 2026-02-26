@@ -94,4 +94,26 @@ admin.get("/integrations/health", async (c) => {
   return c.json({ success: true, data: result });
 });
 
+// ============================================
+// POST /admin/webhooks/register - Register Hostify webhooks
+// ============================================
+admin.post("/webhooks/register", async (c) => {
+  const { registerHostifyWebhooks } = await import("../workers/register-webhooks");
+  try {
+    await registerHostifyWebhooks();
+    const registrations = await prisma.webhookRegistration.findMany();
+    return c.json({
+      success: true,
+      data: registrations.map((r) => ({
+        type: r.notificationType,
+        url: r.endpointUrl,
+        confirmed: r.subscriptionConfirmed,
+        lastReceived: r.lastReceivedAt,
+      })),
+    });
+  } catch (err) {
+    return c.json({ success: false, error: (err as Error).message }, 500);
+  }
+});
+
 export default admin;

@@ -2,6 +2,7 @@ import { prisma } from "@hostiq/db";
 
 type SenderType = "GUEST" | "HOST" | "AUTOMATION" | "SYSTEM";
 import { hostify } from "../integrations/hostify/client";
+import { processNewGuestMessage } from "../services/chatbot";
 
 const INTEGRATION = "hostify";
 const ENTITY_TYPE = "messages";
@@ -125,14 +126,40 @@ export async function syncMessagesForProperty(
             .then((r) => r?.id ?? null)
         : null;
 
-      const guestId = raw.guest_id
-        ? await prisma.guest
-            .findFirst({
-              where: { hostifyGuestId: String(raw.guest_id) },
-              select: { id: true },
-            })
-            .then((g) => g?.id ?? null)
-        : null;
+      // Try to find guest by hostify guest ID, or create from thread data
+      let guestId: string | null = null;
+      const rawGuestId = raw.guest_id as string | number | undefined;
+      const rawGuestName = (raw.guest_name ?? raw.guest_first_name) as string | undefined;
+      const rawGuestEmail = raw.guest_email as string | undefined;
+      const rawGuestPhone = raw.guest_phone as string | undefined;
+
+      if (rawGuestId) {
+        const existingGuest = await prisma.guest.findFirst({
+          where: { hostifyGuestId: String(rawGuestId) },
+        });
+        if (existingGuest) {
+          guestId = existingGuest.id;
+          // Update name if we have it now and didn't before
+          if (rawGuestName && !existingGuest.name) {
+            await prisma.guest.update({
+              where: { id: existingGuest.id },
+              data: { name: rawGuestName, email: rawGuestEmail ?? existingGuest.email, phone: rawGuestPhone ?? existingGuest.phone },
+            });
+          }
+        } else if (rawGuestName || rawGuestEmail) {
+          // Create guest record from thread data
+          const newGuest = await prisma.guest.create({
+            data: {
+              hostifyGuestId: String(rawGuestId),
+              name: rawGuestName ?? null,
+              email: rawGuestEmail ?? null,
+              phone: rawGuestPhone ?? null,
+            },
+          });
+          guestId = newGuest.id;
+          console.log(`[Sync:Messages] Created guest ${newGuest.id} (${rawGuestName}) from thread data`);
+        }
+      }
 
       const thread = await prisma.messageThread.upsert({
         where: { hostifyThreadId },
@@ -165,7 +192,7 @@ export async function syncMessagesForProperty(
           parseDate(msg.created ?? msg.created_at ?? msg.createdAt) ?? new Date();
         const senderType = inferSenderType(msg.from);
 
-        await prisma.message.upsert({
+        const upserted = await prisma.message.upsert({
           where: { hostifyMessageId },
           update: {
             senderType,
@@ -180,6 +207,19 @@ export async function syncMessagesForProperty(
             createdAt,
           },
         });
+
+        // Trigger AI suggestion for new guest messages (fire and forget)
+        if (senderType === "GUEST") {
+          const hasAiStatus = await prisma.messageAiStatus.findUnique({
+            where: { messageId: upserted.id },
+            select: { id: true },
+          });
+          if (!hasAiStatus) {
+            processNewGuestMessage(thread.id, upserted.id).catch((err) => {
+              console.error(`[Sync:Messages] AI suggestion failed for ${upserted.id}:`, (err as Error).message);
+            });
+          }
+        }
 
         messageCount++;
       }

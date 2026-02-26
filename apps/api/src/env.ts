@@ -72,6 +72,10 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_ID: z.string().optional(),
 
+  // Chatbot
+  CHATBOT_WEBHOOK_URLS: z.string().optional(),
+  CHATBOT_AUTO_SUGGEST: z.coerce.boolean().optional().default(true),
+
   // App
   API_URL: z.string().default("http://localhost:3001"),
   APP_URL: z.string().default("http://localhost:3000"),
