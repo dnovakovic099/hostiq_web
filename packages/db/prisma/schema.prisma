@@ -644,6 +644,29 @@ model HostbuddyWebhookLog {
 }
 
 // ============================================
+// Hostify Raw Messages (full payload capture)
+// ============================================
+
+model HostifyRawMessage {
+  id                   String   @id @default(cuid())
+  hostifyMessageId     String   @unique @map("hostify_message_id")
+  hostifyThreadId      String?  @map("hostify_thread_id")
+  hostifyListingId     String?  @map("hostify_listing_id")
+  hostifyReservationId String?  @map("hostify_reservation_id")
+  hostifyGuestId       String?  @map("hostify_guest_id")
+  createdAt            DateTime? @map("created_at")
+  ingestedAt           DateTime  @default(now()) @map("ingested_at")
+  payload              Json     @map("payload")
+  source               String?  @map("source")
+
+  @@index([hostifyThreadId])
+  @@index([hostifyListingId])
+  @@index([hostifyReservationId])
+  @@index([createdAt])
+  @@map("hostify_raw_messages")
+}
+
+// ============================================
 // Issues and Maintenance
 // ============================================
 
