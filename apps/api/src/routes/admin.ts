@@ -116,4 +116,22 @@ admin.post("/webhooks/register", async (c) => {
   }
 });
 
+// ============================================
+// POST /admin/hostify/messages/backfill - Backfill raw Hostify messages
+// ============================================
+admin.post("/hostify/messages/backfill", async (c) => {
+  const { backfillHostifyRawMessages } = await import("../workers/backfill-hostify-raw-messages");
+  // Fire-and-forget to avoid request timeout
+  setImmediate(() => {
+    backfillHostifyRawMessages().catch((err) => {
+      console.error("[Backfill:HostifyRawMessages] Failed:", (err as Error).message);
+    });
+  });
+
+  return c.json({
+    success: true,
+    message: "Backfill started. This may take hours depending on message volume.",
+  });
+});
+
 export default admin;

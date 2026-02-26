@@ -208,6 +208,30 @@ export async function syncMessagesForProperty(
           },
         });
 
+        // Store full raw payload (idempotent by hostify_message_id)
+        await prisma.hostifyRawMessage.upsert({
+          where: { hostifyMessageId },
+          update: {
+            hostifyThreadId: hostifyThreadId,
+            hostifyListingId: String(hostifyListingId),
+            hostifyReservationId: raw.reservation_id ? String(raw.reservation_id) : null,
+            hostifyGuestId: raw.guest_id ? String(raw.guest_id) : null,
+            createdAt,
+            payload: msg as Record<string, unknown>,
+            source: "hostify",
+          },
+          create: {
+            hostifyMessageId,
+            hostifyThreadId: hostifyThreadId,
+            hostifyListingId: String(hostifyListingId),
+            hostifyReservationId: raw.reservation_id ? String(raw.reservation_id) : null,
+            hostifyGuestId: raw.guest_id ? String(raw.guest_id) : null,
+            createdAt,
+            payload: msg as Record<string, unknown>,
+            source: "hostify",
+          },
+        });
+
         // Trigger AI suggestion for new guest messages (fire and forget)
         if (senderType === "GUEST") {
           const hasAiStatus = await prisma.messageAiStatus.findUnique({

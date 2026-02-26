@@ -4,3 +4,4 @@ export { syncMessages, syncMessagesForProperty } from "./sync-messages";
 export { syncReviews } from "./sync-reviews";
 export { startScheduler, stopScheduler } from "./scheduler";
 export { registerHostifyWebhooks } from "./register-webhooks";
+export { backfillHostifyRawMessages } from "./backfill-hostify-raw-messages";
