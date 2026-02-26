@@ -2,6 +2,7 @@ import { prisma } from "@hostiq/db";
 
 type SenderType = "GUEST" | "HOST" | "AUTOMATION" | "SYSTEM";
 import { hostify } from "../integrations/hostify/client";
+import { processNewGuestMessage } from "../services/chatbot";
 
 const INTEGRATION = "hostify";
 const ENTITY_TYPE = "messages";
@@ -165,7 +166,7 @@ export async function syncMessagesForProperty(
           parseDate(msg.created ?? msg.created_at ?? msg.createdAt) ?? new Date();
         const senderType = inferSenderType(msg.from);
 
-        await prisma.message.upsert({
+        const upserted = await prisma.message.upsert({
           where: { hostifyMessageId },
           update: {
             senderType,
@@ -180,6 +181,19 @@ export async function syncMessagesForProperty(
             createdAt,
           },
         });
+
+        // Trigger AI suggestion for new guest messages (fire and forget)
+        if (senderType === "GUEST") {
+          const hasAiStatus = await prisma.messageAiStatus.findUnique({
+            where: { messageId: upserted.id },
+            select: { id: true },
+          });
+          if (!hasAiStatus) {
+            processNewGuestMessage(thread.id, upserted.id).catch((err) => {
+              console.error(`[Sync:Messages] AI suggestion failed for ${upserted.id}:`, (err as Error).message);
+            });
+          }
+        }
 
         messageCount++;
       }

@@ -1,8 +1,12 @@
 import { Hono } from "hono";
 import { prisma } from "@hostiq/db";
 import crypto from "crypto";
+import openphoneWebhooks from "./openphone";
 
 const webhooks = new Hono();
+
+// Mount OpenPhone webhooks
+webhooks.route("/openphone", openphoneWebhooks);
 
 // ============================================
 // POST /webhooks/hostify
@@ -119,8 +123,21 @@ webhooks.post("/hostify", async (c) => {
       data: { lastReceivedAt: new Date() },
     });
 
-    // TODO: Route to specific handlers based on notification type
-    // - message_new -> ingest message, check HostBuddy
+    // Route to specific handlers based on notification type
+    if (subject.includes("message") || subject === "message_new") {
+      // Trigger AI suggestion for new messages
+      // Find the thread from the inner message data
+      const threadId = innerMessage.thread_id as string | undefined;
+      if (threadId) {
+        import("../../services/chatbot").then(({ generateSuggestion }) => {
+          generateSuggestion(threadId).catch((err) => {
+            console.error("[Webhook:Hostify] AI suggestion failed:", (err as Error).message);
+          });
+        });
+      }
+    }
+
+    // TODO: Route other notification types
     // - new_reservation -> create reservation, cleaning task
     // - update_reservation -> update local record
     // - move_reservation -> update dates/listing

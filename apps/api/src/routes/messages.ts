@@ -143,6 +143,206 @@ messages.get("/threads/:id", async (c) => {
 });
 
 // ============================================
+// GET /threads/:id/suggestions - Get AI suggestions for a thread
+// ============================================
+messages.get("/threads/:id/suggestions", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const filter = getPropertyFilter(user);
+
+  const thread = await prisma.messageThread.findFirst({
+    where: { id, property: filter },
+  });
+
+  if (!thread) {
+    return c.json({ success: false, error: "Thread not found" }, 404);
+  }
+
+  const suggestions = await prisma.messageAiStatus.findMany({
+    where: {
+      message: { threadId: id },
+    },
+    include: {
+      message: {
+        select: { id: true, content: true, senderType: true, createdAt: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return c.json({ success: true, data: suggestions });
+});
+
+// ============================================
+// POST /threads/:id/approve-suggestion - Approve an AI suggestion
+// ============================================
+messages.post("/threads/:id/approve-suggestion", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const filter = getPropertyFilter(user);
+
+  const body = await c.req.json();
+  const { messageId } = body as { messageId?: string };
+
+  if (!messageId) {
+    return c.json({ success: false, error: "messageId is required" }, 400);
+  }
+
+  const thread = await prisma.messageThread.findFirst({
+    where: { id, property: filter },
+  });
+
+  if (!thread) {
+    return c.json({ success: false, error: "Thread not found" }, 404);
+  }
+
+  const aiStatus = await prisma.messageAiStatus.findUnique({
+    where: { messageId },
+  });
+
+  if (!aiStatus) {
+    return c.json({ success: false, error: "No AI suggestion found for this message" }, 404);
+  }
+
+  await prisma.messageAiStatus.update({
+    where: { messageId },
+    data: { responded: true },
+  });
+
+  return c.json({ success: true, data: { approved: true } });
+});
+
+// ============================================
+// POST /threads/:id/dismiss-suggestion - Dismiss an AI suggestion
+// ============================================
+messages.post("/threads/:id/dismiss-suggestion", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const filter = getPropertyFilter(user);
+
+  const body = await c.req.json();
+  const { messageId } = body as { messageId?: string };
+
+  if (!messageId) {
+    return c.json({ success: false, error: "messageId is required" }, 400);
+  }
+
+  const thread = await prisma.messageThread.findFirst({
+    where: { id, property: filter },
+  });
+
+  if (!thread) {
+    return c.json({ success: false, error: "Thread not found" }, 404);
+  }
+
+  // Mark as responded (dismissed) and clear action items
+  await prisma.messageAiStatus.update({
+    where: { messageId },
+    data: { responded: true },
+  });
+
+  return c.json({ success: true, data: { dismissed: true } });
+});
+
+// ============================================
+// GET /inbox - Enhanced inbox view with AI status
+// ============================================
+messages.get("/inbox", async (c) => {
+  const user = c.get("user");
+  const filter = getPropertyFilter(user);
+
+  const query = listThreadsQuerySchema.safeParse({
+    page: c.req.query("page"),
+    pageSize: c.req.query("pageSize"),
+    propertyId: c.req.query("propertyId"),
+    status: c.req.query("status"),
+    search: c.req.query("search"),
+  });
+
+  const params = query.success ? query.data : listThreadsQuerySchema.parse({});
+  const { page, pageSize, propertyId, status, search } = params;
+  const skip = (page - 1) * pageSize;
+  const take = pageSize;
+
+  const where: Record<string, unknown> = { property: filter };
+  if (propertyId) where.propertyId = propertyId;
+  if (status) where.status = status;
+  if (search) {
+    where.OR = [
+      { guest: { name: { contains: search, mode: "insensitive" } } },
+      { guest: { email: { contains: search, mode: "insensitive" } } },
+    ];
+  }
+
+  const [items, total] = await Promise.all([
+    prisma.messageThread.findMany({
+      where,
+      include: {
+        guest: { select: { id: true, name: true, email: true, phone: true } },
+        property: { select: { id: true, name: true } },
+        reservation: {
+          select: { id: true, checkIn: true, checkOut: true, channel: true, status: true },
+        },
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          include: { aiStatus: true },
+        },
+      },
+      orderBy: { lastMessageAt: "desc" },
+      skip,
+      take,
+    }),
+    prisma.messageThread.count({ where }),
+  ]);
+
+  // Count pending suggestions per thread
+  const threadIds = items.map((t) => t.id);
+  const pendingSuggestions = await prisma.messageAiStatus.groupBy({
+    by: ["messageId"],
+    where: {
+      responded: false,
+      message: { threadId: { in: threadIds } },
+    },
+  });
+
+  // Map pending counts by thread
+  const pendingByThread = new Map<string, number>();
+  for (const item of items) {
+    const count = pendingSuggestions.filter((ps) =>
+      item.messages.some((m) => m.id === ps.messageId)
+    ).length;
+    if (count > 0) pendingByThread.set(item.id, count);
+  }
+
+  const threads = items.map((t) => {
+    const { messages, ...rest } = t;
+    const latestMessage = messages[0] ?? null;
+    return {
+      ...rest,
+      latestMessage: latestMessage
+        ? {
+            id: latestMessage.id,
+            content: latestMessage.content,
+            senderType: latestMessage.senderType,
+            createdAt: latestMessage.createdAt,
+            aiStatus: latestMessage.aiStatus ?? null,
+          }
+        : null,
+      pendingSuggestions: pendingByThread.get(t.id) ?? 0,
+    };
+  });
+
+  return c.json({
+    success: true,
+    data: {
+      items: threads,
+      pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
+    },
+  });
+});
+
+// ============================================
 // POST /threads/:id/messages - Send a message (create local record)
 // ============================================
 messages.post("/threads/:id/messages", async (c) => {
