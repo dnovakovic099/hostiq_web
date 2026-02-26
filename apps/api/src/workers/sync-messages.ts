@@ -126,14 +126,40 @@ export async function syncMessagesForProperty(
             .then((r) => r?.id ?? null)
         : null;
 
-      const guestId = raw.guest_id
-        ? await prisma.guest
-            .findFirst({
-              where: { hostifyGuestId: String(raw.guest_id) },
-              select: { id: true },
-            })
-            .then((g) => g?.id ?? null)
-        : null;
+      // Try to find guest by hostify guest ID, or create from thread data
+      let guestId: string | null = null;
+      const rawGuestId = raw.guest_id as string | number | undefined;
+      const rawGuestName = (raw.guest_name ?? raw.guest_first_name) as string | undefined;
+      const rawGuestEmail = raw.guest_email as string | undefined;
+      const rawGuestPhone = raw.guest_phone as string | undefined;
+
+      if (rawGuestId) {
+        const existingGuest = await prisma.guest.findFirst({
+          where: { hostifyGuestId: String(rawGuestId) },
+        });
+        if (existingGuest) {
+          guestId = existingGuest.id;
+          // Update name if we have it now and didn't before
+          if (rawGuestName && !existingGuest.name) {
+            await prisma.guest.update({
+              where: { id: existingGuest.id },
+              data: { name: rawGuestName, email: rawGuestEmail ?? existingGuest.email, phone: rawGuestPhone ?? existingGuest.phone },
+            });
+          }
+        } else if (rawGuestName || rawGuestEmail) {
+          // Create guest record from thread data
+          const newGuest = await prisma.guest.create({
+            data: {
+              hostifyGuestId: String(rawGuestId),
+              name: rawGuestName ?? null,
+              email: rawGuestEmail ?? null,
+              phone: rawGuestPhone ?? null,
+            },
+          });
+          guestId = newGuest.id;
+          console.log(`[Sync:Messages] Created guest ${newGuest.id} (${rawGuestName}) from thread data`);
+        }
+      }
 
       const thread = await prisma.messageThread.upsert({
         where: { hostifyThreadId },

@@ -376,10 +376,10 @@ export default function MessagesPage() {
                         )}
                       >
                         {isAutomation ? (
-                          <div className="flex items-center gap-2 py-1 px-3 rounded-full bg-muted/60 border border-border/40 max-w-[80%]">
-                            <Bot className="h-3 w-3 text-muted-foreground shrink-0" />
-                            <p className="text-[12px] text-muted-foreground">{msg.content}</p>
-                            <span className="text-[10px] text-muted-foreground/60 shrink-0">
+                          <div className="flex items-center gap-2 py-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 max-w-[80%]">
+                            <Bot className="h-3 w-3 text-emerald-600 shrink-0" />
+                            <p className="text-[12px] text-emerald-700 dark:text-emerald-400">{msg.content}</p>
+                            <span className="text-[10px] text-emerald-600/60 shrink-0">
                               {formatRelativeTime(msg.createdAt)}
                             </span>
                           </div>
